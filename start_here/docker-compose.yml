@@ -1,0 +1,30 @@
+version: '3'
+services:
+
+  php8site:
+    image: annurschule/gibbon:php7.4
+    container_name: annur_php_gibbon_test
+    volumes:
+      - C:/AnnurSchule/Gibbon/core:/var/www/html
+      
+    ports:
+      - "8081:80"
+    depends_on:
+      - "db"
+  db:
+    image: mysql:5.7
+    container_name: gibbon_mysql_test
+    environment:
+      MYSQL_DATABASE: gibbon_DB
+      MYSQL_USER: gibbon
+      MYSQL_PASSWORD: gibbon_A^123-5544
+      MYSQL_ROOT_PASSWORD: gibbon_A^123-5544_root
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - C:/AnnurSchule/Gibbon/db:/var/lib/mysql
+      - C:/AnnurSchule/Gibbon/db_backup:/var/gibbon_db_backup
+
+
