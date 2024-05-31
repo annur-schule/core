@@ -30,7 +30,7 @@ Thumb.db
 nbproject/
 
 # Vendor Libraries
-/vendor
+# /vendor
 
 # Var Folder
 var/*
