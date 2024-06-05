@@ -11,6 +11,9 @@ services:
       - "8081:80"
     depends_on:
       - "db"
+    networks:
+      - intern-nw-1
+  
   db:
     image: mysql:5.7
     container_name: gibbon_mysql_test
@@ -19,12 +22,19 @@ services:
       MYSQL_USER: gibbon
       MYSQL_PASSWORD: ***REMOVED***
       MYSQL_ROOT_PASSWORD: ***REMOVED***
-    ports:
-      - '3306:3306'
+    #ports:
+    #  - '3306:3306'
     expose:
       - '3306'
     volumes:
       - C:/AnnurSchule/Gibbon/db:/var/lib/mysql
       - C:/AnnurSchule/Gibbon/db_backup:/var/gibbon_db_backup
+    networks:
+      - intern-nw-1
 
 
+# Network configuration (optional, but recommended for better isolation)
+networks:
+  intern-nw-1:
+    driver: bridge
+    

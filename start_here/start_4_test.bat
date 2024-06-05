@@ -14,5 +14,5 @@ start /B docker-compose up
 rem create a delay
 ping 127.0.0.1 -n 6 > nul
 
-msg * "Now open localhost:8081 in your browser."
+msg * "If the downloading is finished in the other window, then open localhost:8081 in your browser."
 
