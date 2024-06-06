@@ -20,8 +20,7 @@ services:
     environment:
       MYSQL_DATABASE: gibbon_DB
       MYSQL_USER: gibbon
-      MYSQL_PASSWORD: ***REMOVED***
-      MYSQL_ROOT_PASSWORD: ***REMOVED***
+
     #ports:
     #  - '3306:3306'
     expose:
