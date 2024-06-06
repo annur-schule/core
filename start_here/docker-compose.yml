@@ -20,7 +20,11 @@ services:
     environment:
       MYSQL_DATABASE: gibbon_DB
       MYSQL_USER: gibbon
-
+    env_file:
+      - path: ./setup.env
+      - path: ./override.env
+        required: false
+    # Only uncomment following two lines for debugging. Dont expose the port in Prod to avoid security issues.
     #ports:
     #  - '3306:3306'
     expose:
