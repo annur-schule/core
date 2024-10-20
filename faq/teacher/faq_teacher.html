@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="de">
+
+<head>
+    <title>FAQ Seite</title>
+    <style>
+        .faq-question {
+            cursor: pointer;
+            margin: 10px 0;
+        }
+    </style>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>Benutzerhandbuch f&uumlr Lehrer</h1>
+
+    <ol>
+        <li><a href="#q1-1">Abwesenheit Erfassen</a></li>
+        <li><a href="#q1-2">Einheiten zum Lehrplan Hinzuf&uumlgen</a></li>
+
+    </ol>
+
+    <hr><hr>
+    
+    <div id="q1-1">
+        <h2>1. Abwesenheit Erfassen</h2>
+        <ol>
+            <li><p>Zuerst stellen Sie sicher, dass Sie als Lehrkraft angemeldet sind.</p> </li>
+            <img src="faq_image/AnwesenheitErfassen01.png"></p>
+            <li><p>Kommen Sie zu "Meine Klassen". </p></li>
+            <img src="faq_image/AnwesenheitErfassen02.png"></p>
+            <li><p>Klicken Sie auf das gezeigte Symbol.</p></li>
+            <img src="faq_image/AnwesenheitErfassen03.png"></p>
+            <li><p>W&aumlhlen Sie ein Datum aus. </p></li>
+            <img src="faq_image/AnwesenheitErfassen04.png"></p>
+            <li><p>Sie haben nun die M&ouml;glichkeit, die bei Ihnen registrierten Kinder einzusehen und auszuw&auml;len, ob das Kind anwesend oder abwesend war. </p></li>
+            <img src="faq_image/AnwesenheitErfassen05.png"></p>
+        </ol>
+        <p><a href="#top">Nach oben</a></p><hr>
+    </div>
+
+
+    <div id="q1-2">
+        <h2>2. Einheiten zum Lehrplan Hinzuf&uuml;gen</h2>
+        <ol>
+            <li><p>Beginnen Sie mit der Vorbereitung und Planung des Wochenplans, indem Sie Einheiten des zu studierenden Buches hinzuf&uuml;gen. Klicken Sie dazu auf 'Planner'..</p> </li>
+            <img src="faq_image/lehrplan01.png" ></p>
+            <li><p>Danach w&auml;hlen Sie "Unterrichtsplaner" aus. </p></li>
+            <img src="faq_image/lehrplan02.png" ></p>
+            <li><p>W&auml;hlen Sie oben links das Kapitel aus, dem Sie die Einheiten hinzuf&uuml;gen m&ouml;chten.</p></li>
+            <img src="faq_image/lehrplan03.png" ></p>
+            <li><p>Klicken Sie auf Hinzuf&uuml;gen </p></li>
+            <img src="faq_image/lehrplan04.png" width="600" ></p>
+            <li><p>Geben Sie anschließend den Namen der Lektion sowie Ihre Notizen ein und klicken Sie auf „Senden“, um Ihre Auswahl zu speichern.</p></li>
+            <img src="faq_image/lehrplan05.png" ></p>
+            <li><p>Vergessen Sie nicht, die Einheit für die beabsichtigte Klasse freizugeben, bevor Sie die &Auml;nderungen speicheren. </p></li>
+            <img src="faq_image/lehrplan06.png" width="600" ></p>
+            <li><p>Kehren Sie zur Startseite zur&uuml;ck und klicken Sie auf „Planer“, um die gew&uuml;nschte Klasse auszuw&auml;hlen, zu der Sie eine Lektion hinzuf&uuml;gen m&ouml;chten. </p></li>
+            <img src="faq_image/lehrplan07.png" ></p>
+            <li><p>Dann klicken Sie auf "Hinzuf&uuml;gen", um eine neue Lektion hinzuzuf&uuml;gen </p></li>
+            <img src="faq_image/lehrplan08.png" width=600 ></p>
+            <li><p>Bitte unterscheiden Sie zwischen dem Hinzuf&uuml;gen einer Einheit und dem Hinzuf&uuml;gen einer Lektion zur Einheit.</p>
+            <p>W&auml;hlen Sie dann die Einheit aus und geben Sie den Namen der Lektion ein, sowie etwaige &Uuml;bungen oder Aufgaben, falls vorhanden. </p></li>
+            <img src="faq_image/lehrplan09.png" ></p>
+            <li><p>Vergessen Sie nicht, am Ende auf "Senden" zu klicken. Sie finden dann immer alle hinzugefügten Lektionen im im "Planer". </p></li>
+            
+        </ol>
+        <p><a href="#top">Nach oben</a></p><hr>
+    </div>
+
+
+
+    <script>
+        var faqQuestions = document.getElementsByClassName('faq-question');
+        for (var i = 0; i < faqQuestions.length; i++) {
+            faqQuestions[i].addEventListener('click', function() {
+                this.children[1].style.display = this.children[1].style.display == 'none' ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

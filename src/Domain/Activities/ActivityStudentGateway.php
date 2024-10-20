@@ -43,7 +43,7 @@ class ActivityStudentGateway extends QueryableGateway
     public function queryActivityEnrolment($criteria, $gibbonActivityID) {
         $query = $this
             ->newQuery()
-            ->cols(['gibbonActivityStudent.*', 'surname', 'preferredName', 'gibbonFormGroup.nameShort as formGroup', 'FIND_IN_SET(gibbonActivityStudent.status, "Accepted,Pending,Waiting List,Not Accepted,Left") as sortOrder'])
+            ->cols(['gibbonActivityStudent.*', 'surname', 'preferredName','TIMESTAMPDIFF(YEAR, dob, CURDATE()) As age', 'gibbonFormGroup.nameShort as formGroup', 'FIND_IN_SET(gibbonActivityStudent.status, "Accepted,Pending,Waiting List,Not Accepted,Left") as sortOrder'])
             ->from($this->getTableName())
             ->innerJoin('gibbonActivity', 'gibbonActivity.gibbonActivityID=gibbonActivityStudent.gibbonActivityID')
             ->innerJoin('gibbonPerson', 'gibbonPerson.gibbonPersonID=gibbonActivityStudent.gibbonPersonID')

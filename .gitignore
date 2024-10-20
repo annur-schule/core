@@ -28,6 +28,7 @@ Thumb.db
 .DS_Store
 *~
 nbproject/
+*.bak
 
 # Vendor Libraries
 # /vendor

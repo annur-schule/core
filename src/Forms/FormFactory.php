@@ -386,8 +386,7 @@ class FormFactory implements FormFactoryInterface
         return $this->createSelect($name)->fromArray(array(
             'F'           => __('Female'),
             'M'           => __('Male'),
-            'Other'       => __('Other'),
-            'Unspecified' => __('Unspecified')
+            'Unspecified' => __('-')
         ))->placeholder();
     }
 
