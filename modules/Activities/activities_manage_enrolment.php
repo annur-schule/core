@@ -153,7 +153,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Activities/activities_mana
     $table->addColumn('student', __('Student'))
         ->sortable(['surname', 'preferredName'])
         ->format(Format::using('nameLinked', ['gibbonPersonID', '', 'preferredName', 'surname', 'Student', true, false, ['subpage' => 'Activities']]));
-
+    $table->addColumn('age', __('Age'));
     $table->addColumn('formGroup', __('Form Group'));
 
     $table->addColumn('status', __('Status'))->sortable('sortOrder');

@@ -177,6 +177,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Timetable Admin/courseEnro
             $table->addColumn('name', __('Name'))
                   ->sortable(['gibbonPerson.surname', 'gibbonPerson.preferredName'])
                   ->format($linkedName);
+            $table->addColumn('dob', __('Birthday'));
+            $table->addColumn('age', __('Age'));
             $table->addColumn('email', __('Email'));
             $table->addColumn('role', __('Class Role'))->translatable();
             $table->addColumn('reportable', __('Reportable'))

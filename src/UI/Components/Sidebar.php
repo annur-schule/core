@@ -197,8 +197,9 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
             if (!$this->session->exists('username')) { // If Google Auth set to No make sure login screen not visible when logged in
                 echo '<div class="column-no-break">';
                 echo '<h2>';
-                    echo __('Login');
-                echo '</h2>';
+                    echo '<a class="showHide_loginWindows" onclick="false" href="#">'.__('Login').'</a>';
+                    # echo __('Login');
+                echo '</h2><div class="loginWindows">';
 
                 unset($_GET['return']);
 
@@ -279,13 +280,21 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                     $row->addSubmit(__('Login'));
 
                 echo $form->getOutput();
-                echo '</div>';
+                echo '</div></div>';
 
                 // Control the show/hide for login options
                 echo "<script type='text/javascript'>";
                     echo '$(".loginOptions").hide();';
                     echo '$(".show_hide").click(function(){';
                     echo '$(".loginOptions").fadeToggle(1000);';
+                    echo '});';
+                echo '</script>';
+                // Control the show/hide for login options
+                echo "<script type='text/javascript'>";
+                    if ($this->session->get('sidebarHideLogin'))
+                        echo '$(".loginWindows").hide();';
+                    echo '$(".showHide_loginWindows").click(function(){';
+                    echo '$(".loginWindows").fadeToggle(1000);';
                     echo '});';
                 echo '</script>';
             }
@@ -715,12 +724,10 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
 
         if ($this->category == 'Parent') {
             $output .= '<div class="column-no-break">';
-            $output .= "<h2 style='margin-bottom: 10px'>";
-            $output .= 'Profile Photo';
-            $output .= '</h2>';
+            
 
             if ($this->session->get('image_240') == '') { //No photo, so show uploader
-                $output .= '<p>';
+                /* $output .= '<p>';
                 $output .= __('Please upload a passport photo to use as a profile picture.').' '.__('240px by 320px').'.';
                 $output .= '</p>';
 
@@ -732,9 +739,12 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                     $row->addFileUpload('file1')->accepts('.jpg,.jpeg,.gif,.png')->setMaxUpload(false)->setClass('fullWidth');
                     $row->addSubmit(__('Go'));
 
-                $output .= $form->getOutput();
+                $output .= $form->getOutput(); */
 
             } else { //Photo, so show image and removal link
+                $output .= "<h2 style='margin-bottom: 10px'>";
+                $output .= 'Profile Photo';
+                $output .= '</h2>';
                 $output .= '<p>';
                 $output .= Format::userPhoto($this->session->get('image_240'), 240);
                 $output .= "<div style='margin-left: 220px; margin-top: -50px'>";

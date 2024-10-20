@@ -95,7 +95,7 @@ class TimetableDayGateway extends QueryableGateway
 
     public function selectTTDayRowClassesByID($gibbonTTDayID, $gibbonTTColumnRowID = null) {
         $data = array('gibbonTTDayID' => $gibbonTTDayID);
-        $sql = "SELECT gibbonTTDayRowClassID, gibbonCourseClass.gibbonCourseClassID, gibbonCourse.nameShort AS courseName, gibbonCourseClass.nameShort AS className, gibbonSpace.gibbonSpaceID, gibbonSpace.name as location, gibbonTTColumnRowID
+        $sql = "SELECT gibbonTTDayRowClassID, gibbonCourseClass.gibbonCourseClassID, gibbonCourse.nameShort AS courseName, gibbonCourseClass.nameShort AS className, gibbonSpace.gibbonSpaceID,  gibbonSpace.capacity, gibbonSpace.name as location, gibbonTTColumnRowID
                 FROM gibbonTTDayRowClass
                 JOIN gibbonCourseClass ON (gibbonTTDayRowClass.gibbonCourseClassID=gibbonCourseClass.gibbonCourseClassID)
                 JOIN gibbonCourse ON (gibbonCourseClass.gibbonCourseID=gibbonCourse.gibbonCourseID)
@@ -138,6 +138,23 @@ class TimetableDayGateway extends QueryableGateway
                 AND gibbonTTDayRowClass.gibbonTTDayRowClassID=:gibbonTTDayRowClassID
                 AND gibbonTTDayRowClassExceptionID IS NULL
                 ORDER BY surname, preferredName";
+
+        return $this->db()->select($sql, $data);
+    }
+
+    
+    public function selectTTDayRowClassStudentByID($gibbonTTDayRowClassID) {
+        $data = array('gibbonTTDayRowClassID' => $gibbonTTDayRowClassID);
+        $sql = "SELECT CONCAT(count(gibbonPerson.gibbonPersonID),' ( ' , TIMESTAMPDIFF(YEAR, max(gibbonPerson.dob), CURDATE()), ' ~ ', TIMESTAMPDIFF(YEAR, min(gibbonPerson.dob), CURDATE()), ' Jahr) ')
+                FROM gibbonPerson
+                JOIN gibbonCourseClassPerson ON (gibbonCourseClassPerson.gibbonPersonID=gibbonPerson.gibbonPersonID)
+                JOIN gibbonCourseClass ON (gibbonCourseClassPerson.gibbonCourseClassID=gibbonCourseClass.gibbonCourseClassID)
+                JOIN gibbonTTDayRowClass ON (gibbonTTDayRowClass.gibbonCourseClassID=gibbonCourseClass.gibbonCourseClassID)
+                LEFT JOIN gibbonTTDayRowClassException ON (gibbonTTDayRowClassException.gibbonTTDayRowClassID=gibbonTTDayRowClass.gibbonTTDayRowClassID
+                    AND gibbonTTDayRowClassException.gibbonPersonID=gibbonPerson.gibbonPersonID)
+                WHERE gibbonCourseClassPerson.role='Student'
+                AND gibbonTTDayRowClass.gibbonTTDayRowClassID=:gibbonTTDayRowClassID
+                AND gibbonTTDayRowClassExceptionID IS NULL";
 
         return $this->db()->select($sql, $data);
     }
