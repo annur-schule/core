@@ -42,3 +42,6 @@ node_modules
 
 # Enviorment File with passwords
 start_here/override.env
+
+#production enveronment
+installer/*
