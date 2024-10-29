@@ -988,7 +988,7 @@ function invoiceContents($guid, $connection2, $gibbonFinanceInvoiceID, $gibbonSc
             $return .= "<th style='text-align: left'>";
             $return .= __('Description');
             $return .= '</th>';
-            $return .= "<th style='text-align: left'>";
+            $return .= "<th style='text-align: left; width: 90px;'>";
             $return .= __('Fee').'<br/>';
             if ($currency != '') {
                 $return .= "<span style='font-style: italic; font-size: 85%'>".$currency.'</span>';
