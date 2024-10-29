@@ -137,7 +137,7 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
                 }
             }
         }
-        $return .= "<tr style='height: 35px' class='current'>";
+        $return .= "<tr style='height: 40px' class='_current'>";
         $return .= "<td colspan=5 style='text-align: right'>";
         $return .= '<b>'.__('Total Payment On This Invoice:').'</b>';
         $return .= '</td>';
@@ -908,7 +908,7 @@ function invoiceContents($guid, $connection2, $gibbonFinanceInvoiceID, $gibbonSc
                 $return .= '</td>';
                 $return .= '</tr>';
             }
-            $return .= "<tr style='height: 35px' class='current'>";
+            $return .= "<tr style='height: 40px' class='_current'>";
             $return .= "<td colspan=3 style='text-align: right; $style2'>";
             $return .= '<b>'.__('Invoice Total:').'</b>';
             $return .= '</td>';
@@ -1264,7 +1264,7 @@ function receiptContents($guid, $connection2, $gibbonFinanceInvoiceID, $gibbonSc
                     $return .= '</td>';
                     $return .= '</tr>';
                 }
-                $return .= "<tr style='height: 35px' class='current'>";
+                $return .= "<tr style='height: 40px' class='_current'>";
                 $return .= "<td colspan=3 style='text-align: right; $style2'>";
                 $return .= '<b>'.__('Invoice Total:').'</b>';
                 $return .= '</td>';
@@ -1370,7 +1370,7 @@ function receiptContents($guid, $connection2, $gibbonFinanceInvoiceID, $gibbonSc
                         $return .= __('Refund Issued');
                         $return .= '</h3>';
                         $return .= '<table cellspacing="0" style="width: 100%; $style4">';
-                        $return .= "<tr style='height: 35px' class='current error'>";
+                        $return .= "<tr style='height: 40px' class='current error'>";
                         $return .= "<td style='text-align: right; $style2'>";
                         $return .= '<b>'.__('Refund Total:').'</b>';
                         $return .= '</td>';
@@ -1388,7 +1388,7 @@ function receiptContents($guid, $connection2, $gibbonFinanceInvoiceID, $gibbonSc
                         $return .= '</h3>';
                         if ($hideItemisation != 'Y') { //Do not hide itemisation
                             $return .= "<table cellspacing='0' style='width: 100%; $style4'>";
-                            $return .= "<tr style='height: 35px' class='current'>";
+                            $return .= "<tr style='height: 40px' class='_current'>";
                             $return .= "<td style='text-align: right; $style2'>";
                             $return .= '<b>'.__('Outstanding Balance:').'</b>';
                             $return .= '</td>';
@@ -1417,7 +1417,7 @@ function receiptContents($guid, $connection2, $gibbonFinanceInvoiceID, $gibbonSc
                     $return .= __('Refund Issued');
                     $return .= '</h3>';
                     $return .= '<table cellspacing="0" style="width: 100%; $style4">';
-                    $return .= "<tr style='height: 35px' class='current error'>";
+                    $return .= "<tr style='height: 40px' class='current error'>";
                     $return .= "<td style='text-align: right; $style2'>";
                     $return .= '<b>'.__('Refund Total:').'</b>';
                     $return .= '</td>';
