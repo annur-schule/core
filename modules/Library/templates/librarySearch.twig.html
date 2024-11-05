@@ -75,7 +75,13 @@
             <h4 class='mt-2 text-white'>{{item.name}}</h4>
             <p class='text-white'>by: {{item.producer}}</p>
             <p class='text-white'>Location: {{item.spaceName}}</p>
-            <p class='text-white'>Location Detail: {{item.locationDetail}}</p>
+            <!-- <p class='text-white'>Location Detail: {{item.locationDetail}}</p> -->
+			<p class='text-white'>ID: {{item.id}}</p>
+			{% set fields = item.fields|jsonDecode %}
+			<p class='text-white'>Page Count: {{ attribute(fields, 'Page Count')|default('N/A') }}</p>
+			<p class='text-white'>Age: {{ attribute(fields, 'Reader Age (Youngest)')|default('N/A') }} - {{ attribute(fields, 'Reader Age (Oldest)')|default('N/A') }}</p>
+			<p class='text-white'>Language: {{ attribute(fields, 'Language')|default('N/A') }}</p>
+
         
             
             {% if item.status == 'Available' %}
