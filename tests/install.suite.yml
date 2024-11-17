@@ -1,6 +1,0 @@
-actor: InstallTester
-modules:
-    enabled:
-        - PhpBrowser:
-            url: "%ABSOLUTE_URL%"
-        - \Helper\Install
