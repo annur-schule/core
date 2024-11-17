@@ -121,7 +121,7 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
 
 
 
-        if ($this->session->get('sidebarExtra') != '' and $this->session->get('sidebarExtraPosition') != 'bottom') {
+        if ($this->session->get('sidebarExtra') != '' and $this->session->get('sidebarExtraPosition') != 'top') {
             echo "<div class='sidebarExtra'>";
             echo $this->session->get('sidebarExtra');
             echo '</div>';
