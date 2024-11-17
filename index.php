@@ -223,6 +223,7 @@ if ($session->get('pageLoads') == 0 && !$session->has('address')) { // First pag
 // Set sidebar extra content values via Session.
 $session->set('sidebarExtra', '');
 $session->set('sidebarExtraPosition', 'top');
+$session->set('sidebarHideLogin', false);
 
 // Check the current Action 'entrySidebar' to see if we should display a sidebar
 $page['showSidebar'] = $page->getAction()
@@ -231,8 +232,13 @@ $page['showSidebar'] = $page->getAction()
 
 // Override showSidebar if the URL 'sidebar' param is explicitly set
 if (!empty($_GET['sidebar'])) {
-    $page['showSidebar'] = strtolower($_GET['sidebar']) !== 'false';
+    if (strtolower($_GET['sidebar']) !== 'false')
+        $page['showSidebar'] = false;
+    elseif (strtolower($_GET['sidebar']) === 'hide')
+        $session->set('sidebarHideLogin', true);
+
 }
+
 
 /**
  * SESSION TIMEOUT
@@ -680,6 +686,9 @@ if (!$session->has('address')) {
         }
     }
 } else {
+    // collaps login windows
+    $session->set('sidebarHideLogin', true);
+
     $address = trim($page->getAddress(), ' /');
 
     if ($page->isAddressValid($address, true) == false) {
@@ -734,6 +743,8 @@ if (!empty($_GET['return'])) {
         }
     }
 }
+
+
 
 /**
  * GET SIDEBAR CONTENT

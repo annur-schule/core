@@ -117,11 +117,19 @@ if (isActionAccessible($guid, $connection2, '/modules/Timetable/tt_master.php') 
                         });
 
                         $table->addColumn('class', __('Class'))->format(Format::using('courseClassName', ['courseName', 'className']));
+                        
                         $table->addColumn('location', __('Location'));
                         $table->addColumn('teachers', __('Teachers'))->format(function($class) use ($timetableDayGateway) {
                             $teachers = $timetableDayGateway->selectTTDayRowClassTeachersByID($class['gibbonTTDayRowClassID'])->fetchAll();
                             return Format::nameList($teachers, 'Staff', false, true);
                         });
+                        
+                        $table->addColumn('Students_number', __('Number of Students (Age)'))->format(function($class) use ($timetableDayGateway) {
+                            $Students_number = $timetableDayGateway->selectTTDayRowClassStudentByID($class['gibbonTTDayRowClassID'])->fetchAll();
+                           return implode(', ', $Students_number[0]);
+                        });
+                        
+                        $table->addColumn('capacity', __('Location Capacity'));
 
                         echo $table->render($ttDayRowClasses->toDataSet());
                     }

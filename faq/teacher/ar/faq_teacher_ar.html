@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <title>FAQ Page</title>
+    <style>
+        .faq-question {
+            cursor: pointer;
+            margin: 10px 0;
+        }
+    </style>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>دليل استخدام المعلم</h1>
+
+    <ol>
+        <li><a href="#q1-1">تسجيل الغياب</a></li>
+        <li><a href="#q1-2">إضافة وحدات إلى المنهج</a></li>
+
+    </ol>
+	<hr><hr>
+    
+    <div id="q1-1">
+        <h2>تسجيل الغياب</h2>
+
+        <p style="display: block;">
+			<p>
+                1- اختر دورك كمدرس اذا كان لديك اكثر من دور بالمدرسة. 
+            </p>
+            <p>
+                <img src="choose_role.png" width="800">
+            </p>
+            
+            <p>
+                2- يمكنك الآن رؤية صفوفكم تحت مسمى Meine Klasse
+            </p>
+
+            <p><img src="my_class.png" width="800"></p>
+
+            
+            <p>
+                3- لأخذ غياب الطلاب يرجى الضغط على الرمز التالي
+            </p>
+
+            <p><img src="absence.png" width="800"></p>
+
+            
+            <p>
+                4- عليكم أولا اختيار التاريخ و ليكن سبت أو أحد حسب فصلكم المذكور
+            </p>
+
+            <p><img src="choose_date.png" width="800"></p>
+
+            
+            <p>
+                5- يمكنكم الآن رؤية الأطفال المسجلين لديكم, و اختيار إن كان الطفل حاضر ام غائب.
+            </p>
+
+            <p><img src="show_absence.png" width="800"></p>
+
+            
+            <p>
+                6- بعد تسجيل الغياب يجب الضغط على senden  حتى يتم التسجيل.
+            </p>
+
+            <p><img src="press_send.png" width="800"></p>
+
+				<p><a href="#top">عد للاسئلة بالاعلى</a></p><hr>
+        </div>
+
+
+        <div id="q1-2">
+
+            <h2>إضافة وحدات الى المنهج</h2>
+            
+            <p>
+                1- يمكنكم تحضير الخطة الأسبوعية و تخطيطها بالبدء بإضافة وحدات الكتاب الذي تدرسونه بالضغط على Planner.
+            </p>
+
+            <p><img src="weekly_plan.png" width="800"></p>
+
+            <p>
+                2- ثم اختيار unterrichtsplanner 
+            </p>
+
+            <p><img src="lesson_plan.png" width="800"></p>
+
+            <p>
+                3- و اختيار من فوق اعلى الشمال الفصل المراد اضافة الوحدات له.
+            </p>
+
+            <p><img src="choose_curse.png" width="800"></p>
+
+            <p>
+                4- قم بالضغط على اضافة أو Hinzufügen .
+            </p>
+
+            <p><img src="add_curse.png" width="800"></p>
+
+            <p>
+               5- ثم اكتب اسم الدرس و ملاحظاتك ثم اضغط على senden لحفظ اختياراتك.
+            </p>
+
+            <p><img src="write_lesson.png" width="800"></p>
+
+            <p>
+                6- لا تنس اتاحة الوحدة للفصل المراد تدريسة قبل حفظ التغبييرات.
+            </p>
+
+            <p><img src="enable_unit_class.png" width="800"></p>
+
+            <p>
+                7- بالرجوع مرة اخري للصفحة الرئيسية و الضغط على planner  للفصل المراد اضافة درس اليه.
+            </p>
+
+            <p><img src="planner.png" width="800"></p>
+
+            <p>
+                8- ثم الضغط على Hinzufügenلاضافة درس جديد.
+            </p>
+
+            <p><img src="add_new_lesson.png" width="800"></p>
+
+            <p>
+                يرجى التفريق بين اضافة وحدة و اضافة درس للوحدة.
+            </p>
+
+            <p>
+                9- ثم اختيار الوحدة ثم كتابة اسم الدرس و إن كان هناك تدريبات أو واجبات.
+            </p>
+
+            <p><img src="choose_unit_lesson.png" width="800"></p>       
+
+            <p>
+                10- لا تنس الضغط على senden  في النهاية و ستجد دائما في المخطط أو ال planner  كل الدروس التي اضفتها.
+            </p>
+
+            <p><img src="send_end.png" width="800"></p>
+            <p><a href="#top">عد للاسئلة بالاعلى</a></p><hr>
+        </div>
+        
+    <script>
+        var faqQuestions = document.getElementsByClassName('faq-question');
+        for (var i = 0; i < faqQuestions.length; i++) {
+            faqQuestions[i].addEventListener('click', function() {
+                this.children[1].style.display = this.children[1].style.display == 'none' ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

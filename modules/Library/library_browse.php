@@ -85,7 +85,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Library/library_browse.php
         $row->addSearchSubmit($session, __('Clear Search'))->addClass('sm:col-start-3 md:col-start-5 lg:col-start-7');
 
     $row = $form->addRow();
-        $row->setClass('advancedOptions hidden grid grid-cols-7 gap-4');
+        $row->setClass('advancedOptions grid grid-cols-7 gap-4');
 
     $col = $row->addColumn()->setClass('quarterWidth');
         $col->addLabel('name', __('Title'));
@@ -124,6 +124,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Library/library_browse.php
         $ageArray=range(2,21);
         $col->addSelect('readerAge')->fromArray($ageArray)->setClass('fullWidth')->selected($readerAge)->placeholder();
 
+	$locationToggle = 'on';
     $col = $row->addColumn()->setClass('quarterWidth');
         $col->addCheckBox('locationToggle')->description('Include Books Outside of Library?')->checked(($locationToggle == 'on'))->setValue('on');
 
@@ -213,8 +214,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Library/library_browse.php
             ->fromPOST();
         
         $searchItems = $gateway->queryBrowseItems($criteria)->toArray();
-        $searchTerms = ['Everything' => $everything, 'Name' => $name, 'Producer' => $producer, 'Collection' => $collection, 'Location' => $locationName['name']];
-        
+        $searchTerms = ['Everything' => $everything, 'Name' => $name, 'Producer' => $producer, 'Collection' => $collection, 'Location' => $locationName['name'],'Reader Age' => $readerAge];
+		
         echo $page->fetchFromTemplate('librarySearch.twig.html', [
             'searchItems' => $searchItems,
             'searchTerms' => $searchTerms,

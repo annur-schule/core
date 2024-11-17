@@ -215,8 +215,8 @@ abstract class AuthenticationAdapter implements AdapterInterface, ContainerAware
             throw new Exception\MaintenanceMode;
         }
 
-        // Check fail count, reject & alert if 3rd time
-        if ($userData['failCount'] >= 3) {
+        // Check fail count, reject & alert if 6th time
+        if ($userData['failCount'] >= 6) {
             $this->updateFailCount($userData, $userData['failCount'] + 1);
         }
     }
@@ -373,7 +373,7 @@ abstract class AuthenticationAdapter implements AdapterInterface, ContainerAware
             'username' => $userData['username'],
         ]);
 
-        if ($failCount >= 3) {
+        if ($failCount >= 6) {
             $this->notifySystemAdmin($userData);
             throw new Exception\TooManyFailedLogins;
         }
@@ -416,7 +416,7 @@ abstract class AuthenticationAdapter implements AdapterInterface, ContainerAware
      */
     protected function notifySystemAdmin($userData)
     {
-        if ($userData['failCount'] != 3) return;
+        if ($userData['failCount'] != 6) return;
 
         $this->session = $this->getContainer()->get(Session::class);
 
@@ -424,7 +424,7 @@ abstract class AuthenticationAdapter implements AdapterInterface, ContainerAware
         $event = new NotificationEvent('User Admin', 'Login - Failed');
 
         $event->addRecipient($this->session->get('organisationAdministrator'));
-        $event->setNotificationText(__('Someone at the IP address {ipAddress} failed to login to account {username} 3 times in a row.', ['ipAddress' => $_SERVER['REMOTE_ADDR'], 'username' => $userData['username']]));
+        $event->setNotificationText(__('Someone at the IP address {ipAddress} failed to login to account {username} 6 times in a row.', ['ipAddress' => $_SERVER['REMOTE_ADDR'], 'username' => $userData['username']]));
         $event->setActionLink('/index.php?q=/modules/User Admin/user_manage.php&search='.$userData['username']);
 
         $event->sendNotifications($this->getContainer()->get('db'), $this->session);

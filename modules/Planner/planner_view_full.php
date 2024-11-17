@@ -1176,6 +1176,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Planner/planner_view_full.
                         echo '</table>';
 
                         //Participants & Attendance
+                        // hide the attendance from planer view for all
+                        //if ($values['role'] == 'Teacher'){
+
+                        if (false){ 
                         $gibbonCourseClassID = $values['gibbonCourseClassID'];
                         $columns = 2;
 
@@ -1358,6 +1362,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Planner/planner_view_full.
                             }
 
                             $page->addSidebarExtra($form->getOutput());
+                            }
                         }
 
                         ?>

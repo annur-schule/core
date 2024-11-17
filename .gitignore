@@ -22,12 +22,14 @@ tests/_output
 
 # Template Cache
 /resources/templates/cache/*
+/.vscode/*
 
 # Misc System Temp Files
 Thumb.db
 .DS_Store
 *~
 nbproject/
+*.bak
 
 # Vendor Libraries
 # /vendor
@@ -38,3 +40,9 @@ var/*
 
 # Ignore node_modules folder
 node_modules
+
+# Enviorment File with passwords
+start_here/override.env
+
+#production enveronment
+installer/*
