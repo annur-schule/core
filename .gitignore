@@ -22,6 +22,7 @@ tests/_output
 
 # Template Cache
 /resources/templates/cache/*
+/.vscode/*
 
 # Misc System Temp Files
 Thumb.db
