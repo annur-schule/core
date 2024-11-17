@@ -85,7 +85,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Library/library_browse.php
         $row->addSearchSubmit($session, __('Clear Search'))->addClass('sm:col-start-3 md:col-start-5 lg:col-start-7');
 
     $row = $form->addRow();
-        $row->setClass('advancedOptions hidden grid grid-cols-7 gap-4');
+        $row->setClass('advancedOptions grid grid-cols-7 gap-4');
 
     $col = $row->addColumn()->setClass('quarterWidth');
         $col->addLabel('name', __('Title'));
