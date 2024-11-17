@@ -125,7 +125,8 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
                 $return .= __($row['type']);
                 $return .= '</td>';
                 $return .= '<td>';
-                $return .= Format::name('', $row['preferredName'], $row['surname'], 'Staff', false, true);
+                //$return .= Format::name('', $row['preferredName'], $row['surname'], 'Staff', false, true);
+                $return .= strtoupper($row['preferredName'][0]).'.'.strtoupper($row['surname'][0]).'.';
                 $return .= '</td>';
                 $return .= '<td>';
                 $return .= $row['paymentTransactionID'];
