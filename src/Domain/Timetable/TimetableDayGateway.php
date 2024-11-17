@@ -153,6 +153,8 @@ class TimetableDayGateway extends QueryableGateway
                 LEFT JOIN gibbonTTDayRowClassException ON (gibbonTTDayRowClassException.gibbonTTDayRowClassID=gibbonTTDayRowClass.gibbonTTDayRowClassID
                     AND gibbonTTDayRowClassException.gibbonPersonID=gibbonPerson.gibbonPersonID)
                 WHERE gibbonCourseClassPerson.role='Student'
+                AND (gibbonCourseClassPerson.dateUnenrolled is null or gibbonCourseClassPerson.dateUnenrolled >=curdate())
+                AND gibbonPerson.status = 'Full'
                 AND gibbonTTDayRowClass.gibbonTTDayRowClassID=:gibbonTTDayRowClassID
                 AND gibbonTTDayRowClassExceptionID IS NULL";
 
