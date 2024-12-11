@@ -1,6 +1,6 @@
 --server
 ----login:
-ssh root@195.201.225.183
+ssh root@{hostIP/hostname}
 add ssh to authorized_keys in .ssh folder
 
 
@@ -11,9 +11,9 @@ use crontab -e to see the setup or check the details
 
 
 --copy files:
-scp C:\www\annur\setup\Dockerfile root@195.201.225.183:schule/gibbon_docker
-scp C:\www\annur\setup\Docker-compose.yml root@195.201.225.183:schule/gibbon_docker
-scp -r C:\www\annur\setup\apache root@195.201.225.183:schule/gibbon_docker
+scp C:\www\annur\setup\Dockerfile root@{hostIP/hostname}:schule/gibbon_docker
+scp C:\www\annur\setup\Docker-compose.yml root@{hostIP/hostname}:schule/gibbon_docker
+scp -r C:\www\annur\setup\apache root@{hostIP/hostname}:schule/gibbon_docker
 
 --for backup on mysql server: 
 # attach shell on mysql image
@@ -26,7 +26,7 @@ mysqldump -u root -p  gibbon_DB > dump.sql
 # take the pass from docker compose
 copy the file to local computer 
 # from the local computer 
-$ scp root@195.201.225.183:schule/gibbon_db/dump.sql ./
+$ scp root@{hostIP/hostname}:schule/gibbon_db/dump.sql ./
 
 # restore database to the server
  1- connect to mysql server 
@@ -37,15 +37,14 @@ $ scp root@195.201.225.183:schule/gibbon_db/dump.sql ./
  mysql -u gibbon -p gibbon_DB < database_backup_file.sql
 
 --Docker command:
-docker image build -t annurschule/gibbon:php7.4 . 
+docker image build -t schule/gibbon:php7.4 . 
 - on the docker folder where the docker-compose file exist
 docker-compose up -d
 docker-compose down
 
-
-
+  
 -- mount GMX cloud 
-sudo mount.davfs "https://webdav.mc.gmx.net/Datenbank backups" /root/schule/gmx_backup -o username=annurschule@gmx.de
+sudo mount.davfs "https://webdav.mc.gmx.net/Datenbank backups" /root/schule/gmx_backup -o username=schule@gmx.de
 check this link for more details https://docs.google.com/document/d/13ztbeVF7YZHnBzLd4i11_yuaCCn7h6AF1MOBqfoKShQ/
 
 
@@ -59,7 +58,7 @@ zip -r backup_src_old_Vxx.zip gibbon_src
 
 -3-- copy the source locally and 
 - make sure the zip file is valid 
-scp root@195.201.225.183:~/schule/backup_src_old_V26.zip C:\Users\abbad\Downloads
+scp root@{hostIP/hostname}:~/schule/backup_src_old_V26.zip .\path_to_Download_folder
 
 -4--
 unzip GibbonEduCore_new_Vxx.zip -d gibbon_src_new_tmp_Vxx
