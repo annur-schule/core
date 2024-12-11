@@ -1,0 +1,4 @@
+use the following command for creating the docker container.
+docker-compose -f docker-compose.yml up --build
+
+import the database from test_data.zip and read the instruction how to install the data. 
