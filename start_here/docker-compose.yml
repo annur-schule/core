@@ -3,9 +3,11 @@ services:
 
   php8site:
     image: annurschule/gibbon:php7.4
+    build:
+      context: .
     container_name: annur_php_gibbon_test
     volumes:
-      - C:/AnnurSchule/Gibbon/core:/var/www/html
+      - ..:/var/www/html
       
     ports:
       - "8081:80"
@@ -24,14 +26,14 @@ services:
       - path: ./setup.env
       - path: ./override.env
         required: false
-    # Only uncomment following two lines for debugging. Dont expose the port in Prod to avoid security issues.
-    #ports:
-    #  - '3306:3306'
+    # By default expose a closed port, enable for dev
+    ports: 
+      - ${MYSQL_EXPOSED_PORT:-5555:5555}
     expose:
       - '3306'
     volumes:
-      - C:/AnnurSchule/Gibbon/db:/var/lib/mysql
-      - C:/AnnurSchule/Gibbon/db_backup:/var/gibbon_db_backup
+      - ../db:/var/lib/mysql
+      - ../db_backup:/var/gibbon_db_backup
     networks:
       - intern-nw-1
 

@@ -7,12 +7,11 @@ if not exist Dockerfile (
 	exit /b
 )
 
-docker image build -t annurschule/gibbon:php7.4 . 
-
-start /B docker-compose up
+rem Docker compose does the build
+docker-compose up -d 
 
 rem create a delay
 ping 127.0.0.1 -n 6 > nul
 
-msg * "If the downloading is finished in the other window, then open localhost:8081 in your browser."
+msg * "If the image build and startup is finished in the other window, then open localhost:8081 in your browser."
 
