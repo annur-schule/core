@@ -96,3 +96,40 @@ e.g.
 -14-- change the owner of the upload folder to match the PHP docker owner 
 docker exec -i -t [image_id] /bin/sh
 chown www-data uploads
+
+
+
+*** Gibbon update using Github ***
+- create a branch for the merge or use the main locally (mergeBrnach). 
+
+- if not done yet, add remote repository gibbonEdu/core to the git repo the folloing commad
+git remote add gibbonEdu https://github.com/GibbonEdu/core.git
+
+- merge to the mergeBrnach
+- solve the conflict. keep a list of the changed files (to solve the breaking changes). 
+- commit the changes locally
+- make a smoke test locally. (based on the list of changed files check the functionallity) 
+-- chcek the Annur changes (e.g. library browser, Upload Picture in sidebar, list of students in Planer, master plan view)
+-- chcek the Annue Modules.
+
+- push the changes as a single commit to the Annur remote repository.
+- check the tests results on github 
+- create a new branch with the name for examle Prod28 (this branch will be used in the server)
+
+*** on server ***
+- backup the database folder.
+Backup database as above or using the backup script (the cron script)
+ /root/schule/cron_scripts/gibbon_backup_cron_on_main_srv.sh
+- backup the source code folder. 
+-- backup the old source
+zip -r backup_src_old_Vxx.zip gibbon_src
+
+-- copy the source locally and 
+-- make sure the zip file is valid 
+scp root@{hostIP/hostname}:~/schule/backup_src_old_V26.zip .\path_to_Download_folder
+
+ 
+ - pull the changes to the server.
+
+- remove unneeded folders for server e.g. starthere, install, ...
+
