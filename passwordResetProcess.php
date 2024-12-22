@@ -40,9 +40,10 @@ $_POST = $validator->sanitize($_POST);
 
 //Check email address is not blank
 $input = $_GET['input'] ?? ($_POST['email'] ?? '');
+$input = filter_var(trim($input), FILTER_SANITIZE_EMAIL);
 $step = $_GET['step'] ?? '';
 
-$URL = Url::fromRoute('passwordReset');
+$URL = Url::fromRoute('passwordReset')->withQueryParam('email', $input);
 $URLSuccess1 = Url::fromRoute();
 
 if ($input == '' or ($step != 1 and $step != 2)) {
@@ -61,7 +62,7 @@ else {
     }
 
     if ($result->rowCount() != 1) {
-        header("Location: {$URL->withReturn('error0')}");
+        header("Location: {$URL->withReturn('error4')}");
         exit();
     } else {
         $row = $result->fetch();

@@ -69,7 +69,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
             } else {
                 $form = Form::create('action', $session->get('absoluteURL').'/index.php?q=/modules/'.$session->get('module').'/rollover.php&step=2');
 
-                $form->setClass('smallIntBorder fullWidth');
+                $form->setClass('smallIntBorder w-full');
 
                 $form->addHiddenValue('nextYear', $nextYearBySession['gibbonSchoolYearID']);
 
@@ -140,7 +140,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                 $form = Form::createTable('rollover', $session->get('absoluteURL').'/index.php?q=/modules/'.$session->get('module')."/rollover.php&step=3");
 
                 $form->setFactory(DatabaseFormFactory::create($pdo));
-                $form->setClass('smallIntBorder fullWidth');
+                $form->setClass('smallIntBorder w-full');
 
                 $form->addHiddenValue('nextYear', $nextYearID);
 
@@ -697,7 +697,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                                     $resultFamily3->execute($dataFamily3);
 
                                                     if ($rowFamily2['status'] != 'Full') {
-                                                        $userStatusLogGateway->insert(['gibbonPersonID' => $rowFamily2['gibbonPersonID'], 'statusOld' => $rowFamily2['status'], 'statusNew' => 'Full', 'reason' => __('Rollover')]);
+                                                        $userStatusLogGateway->insert(['gibbonPersonID' => $rowFamily2['gibbonPersonID'], 'statusOld' => $rowFamily2['status'], 'statusNew' => 'Full', 'reason' => __('Rollover'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                                     }
                                             }
                                         }
@@ -715,7 +715,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                     if ($ok = true) {
                                         ++$success;
 
-                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Expected', 'statusNew' => 'Left', 'reason' => __('Rollover')]);
+                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Expected', 'statusNew' => 'Left', 'reason' => __('Rollover'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                     }
                                 }
                             }
@@ -807,7 +807,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                                     $resultFamily3->execute($dataFamily3);
 
                                                     if ($rowFamily2['status'] != 'Full') {
-                                                    $userStatusLogGateway->insert(['gibbonPersonID' => $rowFamily2['gibbonPersonID'], 'statusOld' => $rowFamily2['status'], 'statusNew' => 'Full', 'reason' => __('Rollover')]);
+                                                    $userStatusLogGateway->insert(['gibbonPersonID' => $rowFamily2['gibbonPersonID'], 'statusOld' => $rowFamily2['status'], 'statusNew' => 'Full', 'reason' => __('Rollover'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                                     }
                                             }
                                         }
@@ -825,7 +825,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                     if ($ok = true) {
                                         ++$success;
 
-                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Full', 'statusNew' => 'Left', 'reason' => __('Rollover')]);
+                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Full', 'statusNew' => 'Left', 'reason' => __('Rollover'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                     }
                                 }
                             }
@@ -915,7 +915,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                     if ($reenrolled) {
                                         ++$success;
 
-                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Full', 'statusNew' => 'Left', 'reason' => __('Rollover')]);
+                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Full', 'statusNew' => 'Left', 'reason' => __('Rollover'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                     }
                                 }
                             }
@@ -959,7 +959,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                 if ($left) {
                                     ++$success;
 
-                                    $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Full', 'statusNew' => $status, 'reason' => __('Rollover').': '.__('Set Final Year Students To Left')]);
+                                    $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Full', 'statusNew' => $status, 'reason' => __('Rollover').': '.__('Set Final Year Students To Left'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                 }
                             }
 
@@ -1039,7 +1039,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/rollover.php') 
                                     if ($left) {
                                         ++$success;
 
-                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Expected', 'statusNew' => 'Left', 'reason' => __('Rollover').': '.__('Register New Staff')]);
+                                        $userStatusLogGateway->insert(['gibbonPersonID' => $gibbonPersonID, 'statusOld' => 'Expected', 'statusNew' => 'Left', 'reason' => __('Rollover').': '.__('Register New Staff'), 'gibbonPersonIDModified' => $session->get('gibbonPersonID')]);
                                     }
                                 }
                             }

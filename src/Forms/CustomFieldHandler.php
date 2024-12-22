@@ -258,7 +258,7 @@ class CustomFieldHandler
 
         if (!empty($params['heading'])) {
             $table = $context == 'Individual Needs' 
-                ? $form->addRow()->addTable()->setClass('smallIntBorder fullWidth mt-2')
+                ? $form->addRow()->addTable()->setClass('smallIntBorder w-full mt-2')
                 : $form;
 
             $row = $table->addRow()->addClass($params['class'] ?? '');
@@ -281,7 +281,7 @@ class CustomFieldHandler
             // Handle creating a new heading if the form doesn't already have one
             if (!empty($heading) && !$form->hasHeading($heading)) {
                 $table = $context == 'Individual Needs' 
-                    ? $form->addRow()->addTable()->setClass('smallIntBorder fullWidth mt-2')
+                    ? $form->addRow()->addTable()->setClass('smallIntBorder w-full mt-2')
                     : $form;
 
                 $row = $table->addRow()->addClass($params['class'] ?? '');
@@ -294,6 +294,10 @@ class CustomFieldHandler
                     $fieldValue = Format::date($fieldValue);
                 } elseif (!empty($fieldValue) && $field['type'] == 'checkboxes') {
                     $fieldValue = explode(',', $fieldValue);
+                }
+
+                if (!empty($params['requiredOverride'])) {
+                    $field['required'] = $params['requiredOverride'];
                 }
 
                 $name = $prefix.$field['gibbonCustomFieldID'];

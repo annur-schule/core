@@ -71,24 +71,24 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
                 header("Location: {$URL}");
             } else {
                 $row = $result->fetch();
-                $name = $row['name' ];
+                $name = $row['name'] ?? '';
                 $count = $_POST['count'] ?? '';
                 $partialFail = false;
                 $attachmentFail = false;
                 $attainment = $row['attainment'];
-                $gibbonScaleIDAttainment = $row['gibbonScaleIDAttainment'];
+                $gibbonScaleIDAttainment = $row['gibbonScaleIDAttainment'] ?? '';
                 if ($enableEffort != 'Y') {
                     $effort = 'N';
                     $gibbonScaleIDEffort = null;
                 }
                 else {
-                    $effort = $row['effort'];
-                    $gibbonScaleIDEffort = $row['gibbonScaleIDEffort'];
+                    $effort = $row['effort'] ?? '';
+                    $gibbonScaleIDEffort = $row['gibbonScaleIDEffort'] ?? '';
                 }
-                $comment = $row['comment'];
-                $uploadedResponse = $row['uploadedResponse'];
-                $gibbonScaleIDAttainment = $row['gibbonScaleIDAttainment'];
-                $gibbonScaleIDTarget = $row['gibbonScaleIDTarget'];
+                $comment = $row['comment'] ?? '';
+                $uploadedResponse = $row['uploadedResponse'] ?? '';
+                $gibbonScaleIDAttainment = $row['gibbonScaleIDAttainment'] ?? '';
+                $gibbonScaleIDTarget = $row['gibbonScaleIDTarget'] ?? '';
 
                 for ($i = 1;$i <= $count;++$i) {
                     $gibbonPersonIDStudent = $_POST["$i-gibbonPersonID"] ?? '';
@@ -283,14 +283,17 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
 
                                 if (empty($attachment)) {
                                     $partialFail = true;
+                                } elseif (!empty($entry['response'])) {
+                                    @unlink($session->get('absolutePath').'/'.$entry['response']);
                                 }
 
                                 // Create a log of failed uploads
+                                $attachmentPath = $session->get('absolutePath').'/'.$attachment;
                                 $errorMessage = $fileUploader->getLastError();
-                                if (empty($errorMessage) && !file_exists($attachment)) {
+                                if (empty($errorMessage) && !file_exists($attachmentPath)) {
                                     $errorMessage = __('Uploaded file not found in the system.');
                                 }
-                                if (!empty($errorMessage) || filesize($attachment) === 0) {
+                                if (!empty($errorMessage) || filesize($attachmentPath) === 0) {
                                     $gibbonModuleID = getModuleIDFromName($connection2, 'Markbook');
                                     $logGateway->addLog($session->get('gibbonSchoolYearID'), $gibbonModuleID, $session->get('gibbonPersonID'), 'Uploaded Response Failed', [
                                         'gibbonMarkbookColumnID' => $gibbonMarkbookColumnID,
@@ -306,10 +309,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
                                 }
                             } else {
                                 // Remove the attachment if it has been deleted, otherwise retain the original value
-                                $attachment = empty($_POST["attachment$i"]) ? null : $entry['response'];
+                                $attachment = empty($_POST["attachment$i"]) ? null : ($entry['response'] ?? '');
                             }
                         } else {
-                            $attachment = $entry['response'];
+                            $attachment = $entry['response'] ?? '';
                         }
 
                         if (empty($entry)) {

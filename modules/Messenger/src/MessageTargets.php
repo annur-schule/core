@@ -38,12 +38,10 @@ use Gibbon\Domain\User\RoleGateway;
 class MessageTargets
 {
     protected $report;
-
-    /**
-     * Role gateway
-     *
-     * @var RoleGateway
-     */
+    protected $session;
+    protected $db;
+    protected $settingGateway;
+    protected $logGateway;
     protected $roleGateway;
 
     public function __construct(
@@ -308,22 +306,22 @@ class MessageTargets
         //Attendance
         if (isActionAccessible($guid, $connection2, "/modules/Messenger/messenger_post.php", "New Message_attendance")) {
             if ($_POST["attendance"]=="Y") {
-            $choices = $_POST["attendanceStatus"] ?? [];
-            $students = $_POST["attendanceStudents"] ?? [];
-            $parents = $_POST["attendanceParents"] ?? [];
-            if (!empty($choices)) {
-                foreach ($choices as $t) {
-                try {
-                    $dataTarget=array("gibbonMessengerID"=>$gibbonMessengerID, "id"=>$t, "students"=>$students, "parents"=>$parents);
-                    $sqlTarget="INSERT INTO gibbonMessengerTarget SET gibbonMessengerID=:gibbonMessengerID, type='Attendance', id=:id, students=:students, parents=:parents";
-                    $result=$connection2->prepare($sqlTarget);
-                    $result->execute($dataTarget);
+                $choices = $_POST["attendanceStatus"] ?? [];
+                $students = $_POST["attendanceStudents"] ?? [];
+                $parents = $_POST["attendanceParents"] ?? [];
+                if (!empty($choices)) {
+                    foreach ($choices as $t) {
+                        try {
+                            $dataTarget=array("gibbonMessengerID"=>$gibbonMessengerID, "id"=>$t, "students"=>$students, "parents"=>$parents);
+                            $sqlTarget="INSERT INTO gibbonMessengerTarget SET gibbonMessengerID=:gibbonMessengerID, type='Attendance', id=:id, students=:students, parents=:parents";
+                            $result=$connection2->prepare($sqlTarget);
+                            $result->execute($dataTarget);
+                        }
+                        catch(\PDOException $e) {
+                            $partialFail = true;
+                        }
+                    }
                 }
-                catch(\PDOException $e) {
-                    $partialFail = true;
-                }
-                }
-            }
             }
         }
 
@@ -342,6 +340,29 @@ class MessageTargets
                         try {
                             $dataTarget=array("gibbonMessengerID"=>$gibbonMessengerID, "t"=>$t, "staff"=>$staff, "students"=>$students, "parents"=>$parents);
                             $sqlTarget="INSERT INTO gibbonMessengerTarget SET gibbonMessengerID=:gibbonMessengerID, type='Group', id=:t, staff=:staff, students=:students, parents=:parents";
+                            $result=$connection2->prepare($sqlTarget);
+                            $result->execute($dataTarget);
+                        }
+                        catch(\PDOException $e) {
+                            $partialFail = true;
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        
+        // Mailing List
+        if (isActionAccessible($guid, $connection2, "/modules/Messenger/messenger_post.php", "New Message_mailingList")) {
+            if ($_POST["mailingList"] == "Y") {
+                $choices = $_POST["mailingLists"] ?? [];
+                if (!empty($choices)) {
+                    foreach ($choices as $t) {
+                        try {
+                            $dataTarget=array("gibbonMessengerID"=>$gibbonMessengerID, "t"=>$t);
+                            $sqlTarget="INSERT INTO gibbonMessengerTarget SET gibbonMessengerID=:gibbonMessengerID, type='Mailing List', id=:t, staff='N', students='N', parents='N'";
                             $result=$connection2->prepare($sqlTarget);
                             $result->execute($dataTarget);
                         }
@@ -2150,6 +2171,38 @@ class MessageTargets
             }
         }
 
+        // Mailing List
+        if (isActionAccessible($guid, $connection2, "/modules/Messenger/messenger_post.php", "New Message_mailingList")) {
+            if ($_POST["mailingList"]=="Y") {
+                $choices=$_POST["mailingLists"] ?? [];
+                if (!empty($choices)) {
+                    foreach ($choices as $t) {
+                        try {
+                            $data=array("gibbonMessengerID"=>$AI, "id"=>$t);
+                            $sql="INSERT INTO gibbonMessengerTarget SET gibbonMessengerID=:gibbonMessengerID, type='Mailing List', id=:id, staff='N', students='N', parents='N'" ;
+                            $result=$connection2->prepare($sql);
+                            $result->execute($data);
+                        }
+                        catch(\PDOException $e) {
+                            $partialFail=TRUE;
+                        }
+
+                        //Get email addresses
+                        try {
+                            $dataEmail=array("gibbonMessengerMailingListID"=>$t);
+                            $sqlEmail="SELECT DISTINCT email, gibbonMessengerMailingListRecipientID, `key` FROM gibbonMessengerMailingList JOIN gibbonMessengerMailingListRecipient ON (gibbonMessengerMailingListRecipient.gibbonMessengerMailingListIDList LIKE CONCAT('%', gibbonMessengerMailingList.gibbonMessengerMailingListID, '%')) WHERE NOT email='' AND gibbonMessengerMailingList.gibbonMessengerMailingListID=:gibbonMessengerMailingListID" ;
+                            $resultEmail=$connection2->prepare($sqlEmail);
+                            $resultEmail->execute($dataEmail);
+                        }
+                        catch(\PDOException $e) {}
+                        while ($rowEmail=$resultEmail->fetch()) {
+                            $this->reportAdd($emailReceipt, $rowEmail['gibbonMessengerMailingListRecipientID'], 'Mailing List', $t, 'Email', $rowEmail["email"], null, null, $rowEmail["key"]);
+                        }
+                    }       
+                }
+            }
+        }
+
         //Individuals
         if (isActionAccessible($guid, $connection2, "/modules/Messenger/messenger_post.php", "New Message_individuals")) {
             if ($_POST["individuals"]=="Y") {
@@ -2206,8 +2259,8 @@ class MessageTargets
             try {
                 $confirmed = $reportEntry[5] != '' ? 'N' : null;
 
-                $data = ["gibbonMessengerID"=>$AI, "gibbonPersonID"=>$reportEntry[0], "targetType"=>$reportEntry[1], "targetID"=>$reportEntry[2], "contactType"=>$reportEntry[3], "contactDetail"=>$reportEntry[4], "key"=>$reportEntry[5], "confirmed" => $confirmed, "gibbonPersonIDListStudent" => $reportEntry[6], 'nameListStudent' => json_encode($reportEntry[7])];
-                $sql="INSERT INTO gibbonMessengerReceipt SET gibbonMessengerID=:gibbonMessengerID, gibbonPersonID=:gibbonPersonID, targetType=:targetType, targetID=:targetID, contactType=:contactType, contactDetail=:contactDetail, `key`=:key, confirmed=:confirmed, confirmedTimestamp=NULL, gibbonPersonIDListStudent=:gibbonPersonIDListStudent, nameListStudent=:nameListStudent" ;
+                $data = ["gibbonMessengerID"=>$AI, "gibbonPersonID"=>$reportEntry[0], "targetType"=>$reportEntry[1], "targetID"=>$reportEntry[2], "contactType"=>$reportEntry[3], "contactDetail"=>$reportEntry[4], "key"=>$reportEntry[5], "confirmed" => $confirmed, "gibbonPersonIDListStudent" => $reportEntry[6], 'nameListStudent' => json_encode($reportEntry[7]), 'unsubscribeKey' => $reportEntry[8]];
+                $sql="INSERT INTO gibbonMessengerReceipt SET gibbonMessengerID=:gibbonMessengerID, gibbonPersonID=:gibbonPersonID, targetType=:targetType, targetID=:targetID, contactType=:contactType, contactDetail=:contactDetail, `key`=:key, confirmed=:confirmed, confirmedTimestamp=NULL, gibbonPersonIDListStudent=:gibbonPersonIDListStudent, nameListStudent=:nameListStudent, unsubscribeKey=:unsubscribeKey" ;
                 $result=$connection2->prepare($sql);
                 $result->execute($data);
             }
@@ -2230,9 +2283,10 @@ class MessageTargets
      * @param [type] $contactDetail
      * @param [type] $gibbonPersonIDListStudent
      * @param [type] $nameStudent
+     * @param [type] $unsubscribeKey
      * @return array
      */
-    private function reportAdd($emailReceipt, $gibbonPersonID, $targetType, $targetID, $contactType, $contactDetail, $gibbonPersonIDListStudent = null, $nameStudent = null)
+    private function reportAdd($emailReceipt, $gibbonPersonID, $targetType, $targetID, $contactType, $contactDetail, $gibbonPersonIDListStudent = null, $nameStudent = null, $unsubscribeKey = null)
     {
         if ($contactDetail != '' AND is_null($contactDetail) == false) {
             $count = 0;
@@ -2265,6 +2319,8 @@ class MessageTargets
                 }
                 $this->report[$count][6] = $gibbonPersonIDListStudent;
                 $this->report[$count][7] = [$nameStudent];
+                $this->report[$count][8] = $unsubscribeKey;
+                
             }
             else { //Entry is not unique, so apend student details
                 $this->report[$uniqueCount][6] = (empty($this->report[$uniqueCount][6])) ? $gibbonPersonIDListStudent : (!empty($gibbonPersonIDListStudent) ? $this->report[$uniqueCount][6].','.$gibbonPersonIDListStudent : $this->report[$uniqueCount][6]);

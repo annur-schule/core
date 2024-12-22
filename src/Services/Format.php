@@ -120,6 +120,11 @@ class Format
         if (empty($dateString)) {
             return '';
         }
+
+        if (is_string($dateString) && stripos($dateString, '/') !== false) {
+            return $dateString;
+        }
+
         $date = static::createDateTime($dateString, is_string($dateString) && strlen($dateString) == 10 ? 'Y-m-d' : null);
         return $date ? $date->format($format ? $format : static::$settings['dateFormatPHP']) : $dateString;
     }
@@ -135,6 +140,11 @@ class Format
         if (empty($dateString)) {
             return '';
         }
+
+        if (is_string($dateString) && stripos($dateString, '-') === 4) {
+            return $dateString;
+        }
+
         $date = static::createDateTime($dateString, static::$settings['dateFormatPHP']);
         return $date ? $date->format('Y-m-d') : $dateString;
     }
@@ -287,6 +297,10 @@ class Format
     {
         if (empty($dateFrom) || empty($dateTo)) {
             return '';
+        }
+
+        if ($dateFrom == $dateTo) {
+            return static::date($dateFrom, $format);
         }
 
         return static::date($dateFrom, $format) . ' - ' . static::date($dateTo, $format);
@@ -483,6 +497,8 @@ class Format
      */
     public static function yesNo($value, $translate = true)
     {
+        if (empty($value)) return '';
+        
         $value = ($value == 'Y' || $value == 'Yes') ? 'Yes' : 'No';
 
         return $translate ? __($value) : $value;
@@ -531,10 +547,10 @@ class Format
      * @param int $length
      * @return string
      */
-    public static function truncate($value, $length = 40)
+    public static function truncate($value, $length = 40, $class = '')
     {
         return is_string($value) && strlen($value) > $length
-            ? "<span title='".$value."'>".substr($value, 0, $length).'...</span>'
+            ? "<span title='".htmlPrep($value)."' class='".$class."'>".substr(htmlPrep($value), 0, $length).'...</span>'
             : $value;
     }
 
@@ -575,11 +591,13 @@ class Format
      * Formats a string of additional details for a hover-over tooltip.
      *
      * @param string $value
+     * @param string $tooltip
+     * @param string $class
      * @return string
      */
-    public static function tooltip($value, $tooltip = '')
+    public static function tooltip($value, $tooltip = '', $class = '')
     {
-        return '<span title="'.$tooltip.'">'.$value.'</span>';
+        return '<span title="'.$tooltip.'" class="'.$class.'">'.$value.'</span>';
     }
 
     /**
@@ -593,6 +611,8 @@ class Format
      */
     public static function link($url, $text = '', $attr = [])
     {
+        $isExternal = stripos($url, static::$settings['absoluteURL']) === false && !$url instanceof Url;
+
         if (empty($url)) {
             return $text;
         }
@@ -604,13 +624,21 @@ class Format
         }
 
         if (stripos($url, '@') !== false) {
+            $url = filter_var($url, FILTER_SANITIZE_EMAIL);
             $url = 'mailto:'.$url;
-        }
-        if (substr($url, 0, 2) == './') {
-            $url = static::$settings['absoluteURL'].substr($url, 1);
+        } else {
+            $url = str_replace(' ', '%20', $url);
+            $url = filter_var($url, FILTER_SANITIZE_URL);
         }
 
-        if (stripos($url, static::$settings['absoluteURL']) === false && !$url instanceof Url) {
+        $url = str_replace(['"', "'"], ['%22', '%27'], $url);
+        
+        if (substr($url, 0, 2) == './') {
+            $url = static::$settings['absoluteURL'].substr($url, 1);
+            $isExternal = false;
+        }
+
+        if ($isExternal) {
             return '<a href="'.$url.'" '.self::attributes($attr).' target="_blank" rel="noopener noreferrer">'.$text.'</a>';
         } else {
             return '<a href="'.$url.'" '.self::attributes($attr).'>'.$text.'</a>';
@@ -1042,7 +1070,7 @@ class Format
 
         if ($daysUntilNextBirthday == 0) {
             $title = __("{name}'s birthday today!", ['name' => $preferredName]);
-            $icon = 'gift_pink.png';
+            $iconClass = 'bg-pink-500 text-white';
         } else {
             $title = __n(
                 "{count} day until {name}'s birthday!",
@@ -1050,10 +1078,10 @@ class Format
                 $daysUntilNextBirthday,
                 ['name' => $preferredName]
             );
-            $icon = 'gift.png';
+            $iconClass = 'text-gray-600 bg-white';
         }
 
-        return sprintf('<img class="absolute bottom-0 -ml-4" title="%1$s" src="%2$s">', $title, static::$settings['absoluteURL'].'/themes/'.static::$settings['gibbonThemeName'].'/img/'.$icon);
+        return Format::tooltip(icon('outline', 'gift', 'absolute bottom-0 -ml-4 size-7 shadow p-0.5 rounded-md '.$iconClass, ['stroke-width' => '1.8']), $title);
     }
 
     /**
@@ -1141,8 +1169,9 @@ class Format
             return $dateOriginal;
         }
 
-        if (is_int($dateOriginal)) {
-            $expectedFormat = 'U';
+        if (is_int($dateOriginal) && empty($expectedFormat)) {
+            $dateOriginal = date('Y-m-d', $dateOriginal);
+            $expectedFormat = 'Y-m-d';
         }
 
         return !empty($expectedFormat)

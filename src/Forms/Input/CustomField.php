@@ -202,7 +202,7 @@ class CustomField extends Input
 
             case 'Date':
             case 'date':
-                $this->customField->setDateFromValue($value);
+                $this->customField->setValue($value);
                 break;
 
             case 'image':
@@ -274,7 +274,17 @@ class CustomField extends Input
     }
 
     /**
-     * Get the validation output from the internal Input object.
+     * Applies validation to the internal Input object.
+     *
+     * @param Input $element
+     */
+    public function enableValidation(Input $element)
+    {
+        parent::enableValidation($this->customField);
+    }
+
+    /**
+     * @deprecated version
      * @return  string
      */
     public function getValidationOutput()

@@ -169,6 +169,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                     echo "<td style='width: 33%; padding-top: 15px; vertical-align: top'>";
                     echo "<span style='font-size: 115%; font-weight: bold'>".__('Email').'</span><br/>';
                     if ($row['email'] != '') {
+                        $row['email'] = filter_var(trim($row['email']), FILTER_SANITIZE_EMAIL);
                         echo "<i><a href='mailto:".$row['email']."'>".$row['email'].'</a></i>';
                     }
                     echo '</td>';
@@ -408,23 +409,23 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                         $table->addColumn('email', __('Email'))
                                 ->format(Format::using('link', ['email']));
 
-                                $studentGateway = $container->get(StudentGateway::class);
-                                $table->addColumn('schoolHistory', __('School History'))
-                                ->format(function($row) use ($connection2, $studentGateway ) {
-                                    if ($row['dateStart'] != '') {
-                                        echo '<u>'.__('Start Date').'</u>: '.Format::date($row['dateStart']).'</br>';
-                                    }
+                        $studentGateway = $container->get(StudentGateway::class);
+                        $table->addColumn('schoolHistory', __('School History'))
+                        ->format(function($row) use ($connection2, $studentGateway ) {
+                            if ($row['dateStart'] != '') {
+                                echo '<u>'.__('Start Date').'</u>: '.Format::date($row['dateStart']).'</br>';
+                            }
 
-                                    $resultSelect = $studentGateway->selectStudentEnrolmentHistory($row['gibbonPersonID']);
-                                    
-                                    while ($rowSelect = $resultSelect->fetch()) {
-                                        echo '<u>'.$rowSelect['schoolYear'].'</u>: '.$rowSelect['formGroup'].' ('.$rowSelect['studyYear'].')'.'<br/>';
-                                    }
+                            $resultSelect = $studentGateway->selectStudentEnrolmentHistory($row['gibbonPersonID']);
+                            
+                            while ($rowSelect = $resultSelect->fetch()) {
+                                echo '<u>'.$rowSelect['schoolYear'].'</u>: '.$rowSelect['formGroup'].' ('.$rowSelect['studyYear'].')'.'<br/>';
+                            }
 
-                                    if ($row['dateEnd'] != '') {
-                                        echo '<u>'.__('End Date').'</u>: '.Format::date($row['dateEnd']).'</br>';
-                                    }
-                                });
+                            if ($row['dateEnd'] != '') {
+                                echo '<u>'.__('End Date').'</u>: '.Format::date($row['dateEnd']).'</br>';
+                            }
+                        });
 
                         $table->addColumn('lockerNumber', __('Locker Number'));
 
@@ -529,6 +530,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                 $table->addColumn('email', __('Email'))
                                     ->notSortable()
                                     ->format(function ($person) {
+                                        $person['email'] = filter_var(trim($person['email']), FILTER_SANITIZE_EMAIL);
                                         return htmlPrep('<'.$person['email'].'>');
                                     });
                             }
@@ -568,8 +570,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                     ->addParam('gibbonSchoolYearID', $session->get('gibbonSchoolYearID'))
                                     ->addParam('type', $role)
                                     ->addParam('allUsers', $allStudents)
-                                    ->displayLabel()
-                                    ->append(' | ');
+                                    ->displayLabel();
                                 }
                             }
 
@@ -590,8 +591,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                     ->setURL('/modules/Timetable/tt_manage_subscription.php')
                                     ->addParam('gibbonPersonID', $gibbonPersonID)
                                     ->setIcon('download')
-                                    ->displayLabel()
-                                    ->prepend(' | ');
+                                    ->displayLabel();
                             }
 
                             echo $table->render([['' => '']]);
@@ -786,9 +786,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                 $count = 1;
 
                                 if (isActionAccessible($guid, $connection2, '/modules/User Admin/family_manage.php') == true) {
-                                    echo "<div class='linkTop'>";
-                                    echo "<a href='".$session->get('absoluteURL').'/index.php?q=/modules/User Admin/family_manage_edit.php&gibbonFamilyID='.$rowFamily['gibbonFamilyID']."'>".__('Edit')."<img style='margin: 0 0 -4px 5px' title='".__('Edit')."' src='./themes/".$session->get('gibbonThemeName')."/img/config.png'/></a> ";
-                                    echo '</div>';
+                                    $form = Form::createBlank('buttons');
+                                    $form->addHeaderAction('edit', __('Edit Family'))
+                                        ->setURL('/modules/User Admin/family_manage_edit.php')
+                                        ->addParam('gibbonFamilyID', $rowFamily['gibbonFamilyID'])
+                                        ->displayLabel();
+                                    echo $form->getOutput();
                                 } else {
                                     echo '<br/><br/>';
                                 }
@@ -939,9 +942,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                         echo __('Do not contact by email.');
                                     } elseif ($rowMember['contactEmail'] == 'Y' and ($rowMember['email'] != '' or $rowMember['emailAlternate'] != '')) {
                                         if ($rowMember['email'] != '') {
+                                            $rowMember['email'] = filter_var(trim($rowMember['email']), FILTER_SANITIZE_EMAIL);
                                             echo __('Email').": <a href='mailto:".$rowMember['email']."'>".$rowMember['email'].'</a><br/>';
                                         }
                                         if ($rowMember['emailAlternate'] != '') {
+                                            $rowMember['emailAlternate'] = filter_var(trim($rowMember['emailAlternate']), FILTER_SANITIZE_EMAIL);
                                             echo __('Email')." 2: <a href='mailto:".$rowMember['emailAlternate']."'>".$rowMember['emailAlternate'].'</a><br/>';
                                         }
                                         echo '<br/>';
@@ -1046,9 +1051,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                         }
                     } elseif ($subpage == 'Emergency Contacts') {
                         if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage.php') == true) {
-                            echo "<div class='linkTop'>";
-                            echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/User Admin/user_manage_edit.php&gibbonPersonID=$gibbonPersonID'>".__('Edit')."<img style='margin: 0 0 -4px 5px' title='".__('Edit')."' src='./themes/".$session->get('gibbonThemeName')."/img/config.png'/></a> ";
-                            echo '</div>';
+                            $form = Form::createBlank('buttons');
+                            $form->addHeaderAction('edit', __('Edit User'))
+                                ->setURL('/modules/User Admin/user_manage_edit.php')
+                                ->addParam('gibbonPersonID', $gibbonPersonID)
+                                ->displayLabel();
+                            echo $form->getOutput();
                         }
 
                         echo '<p>';
@@ -1193,6 +1201,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                         $table->addColumn('email', __('Email'))
                                 ->notSortable()
                                 ->format(function ($person) {
+                                    $person['email'] = filter_var(trim($person['email']), FILTER_SANITIZE_EMAIL);
                                     return htmlPrep('<'.$person['email'].'>');
                                 });
                         $table->addColumn('context', __('Context'))
@@ -1239,7 +1248,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                     ->addParam('search', $search)
                                     ->displayLabel();
                             } else {
-                                $table->addHeaderAction('edit', __('Edit'))
+                                $table->addHeaderAction('edit', __('Edit Medical Form'))
                                     ->setURL('/modules/Students/medicalForm_manage_edit.php')
                                     ->addParam('gibbonPersonID', $gibbonPersonID)
                                     ->addParam('gibbonPersonMedicalID', $medical['gibbonPersonMedicalID'])
@@ -1326,6 +1335,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                             // DATA TABLE
                             $table = DataTable::createPaginated('firstAidRecords', $criteria);
 
+                            $table->addHeaderAction('add', __('Add'))
+                                ->setURL('/modules/Students/firstAidRecord_add.php')
+                                ->addParam('gibbonPersonID', $gibbonPersonID)
+                                ->displayLabel();
+
                             $table->addExpandableColumn('details')->format(function($person) use ($firstAidGateway) {
                                 $output = '';
                                 if ($person['description'] != '') $output .= '<b>'.__('Description').'</b><br/>'.nl2br($person['description']).'<br/><br/>';
@@ -1396,7 +1410,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
 
                                     $form = Form::create('filter', $session->get('absoluteURL').'/index.php', 'get');
                                     $form->setTitle(__('Filter'));
-                                    $form->setClass('noIntBorder fullWidth');
+                                    $form->setClass('noIntBorder w-full');
 
                                     $form->addHiddenValue('q', '/modules/'.$session->get('module').'/student_view_details.php');
                                     $form->addHiddenValue('gibbonPersonID', $gibbonPersonID);
@@ -1589,7 +1603,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                 echo '</p>';
 
                                 $form = Form::create('filter', $session->get('absoluteURL').'/index.php', 'get');
-                                $form->setClass('noIntBorder fullWidth');
+                                $form->setClass('noIntBorder w-full');
 
                                 $form->addHiddenValue('q', '/modules/'.$session->get('module').'/student_view_details.php');
                                 $form->addHiddenValue('gibbonPersonID', $gibbonPersonID);
@@ -1638,7 +1652,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                 $details = isset($_GET['details'])? $_GET['details'] : 'Yes';
                                 $form->addHiddenValue('details', 'No');
                                 $showHide = $form->getFactory()->createCheckbox('details')->addClass('details')->setValue('Yes')->checked($details)->inline(true)
-                                    ->description(__('Show/Hide Details'))->wrap('&nbsp;<span class="small emphasis displayInlineBlock">', '</span>');
+                                    ->description(__('Show/Hide Details'))->wrap('&nbsp;<span class="text-xs italic inline-block">', '</span>');
 
                                 $rowFilter = $form->addRow();
                                     $rowFilter->addSearchSubmit($session, __('Clear Filters'), array('gibbonPersonID', 'allStudents', 'search', 'subpage'))->prepend($showHide->getOutput());
@@ -2154,9 +2168,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                         } else {
                             //Edit link
                             if (isActionAccessible($guid, $connection2, '/modules/Individual Needs/in_edit.php') == true) {
-                                echo "<div class='linkTop'>";
-                                echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Individual Needs/in_edit.php&gibbonPersonID=$gibbonPersonID'>".__('Edit')."<img style='margin: 0 0 -4px 5px' title='".__('Edit')."' src='./themes/".$session->get('gibbonThemeName')."/img/config.png'/></a> ";
-                                echo '</div>';
+                                $form = Form::createBlank('buttons');
+                                $form->addHeaderAction('edit', __('Edit Individual Needs Record'))
+                                    ->setURL('/modules/Individual Needs/in_edit.php')
+                                    ->addParam('gibbonPersonID', $gibbonPersonID)
+                                    ->displayLabel();
+                                echo $form->getOutput();
                             }
 
                             //Module includes
@@ -2198,6 +2215,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                 while ($rowDetail = $resultDetail->fetch()) {
                                     echo '<li>'.htmlPrep(Format::name('', $rowDetail['preferredName'], $rowDetail['surname'], 'Student', false));
                                     if ($rowDetail['email'] != '') {
+                                        $rowDetail['email'] = filter_var(trim($rowDetail['email']), FILTER_SANITIZE_EMAIL);
                                         echo htmlPrep(' <'.$rowDetail['email'].'>');
                                     }
                                     echo '</li>';
@@ -2306,9 +2324,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                             if (isActionAccessible($guid, $connection2, '/modules/Timetable Admin/courseEnrolment_manage_byPerson_edit.php') == true) {
                                 $role = $roleGateway->getRoleCategory($row['gibbonRoleIDPrimary']);
                                 if ($role == 'Student' or $role == 'Staff') {
-                                    echo "<div class='linkTop'>";
-                                    echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Timetable Admin/courseEnrolment_manage_byPerson_edit.php&gibbonPersonID=$gibbonPersonID&gibbonSchoolYearID=".$session->get('gibbonSchoolYearID')."&type=$role'>".__('Edit')."<img style='margin: 0 0 -4px 5px' title='".__('Edit')."' src='./themes/".$session->get('gibbonThemeName')."/img/config.png'/></a> ";
-                                    echo '</div>';
+                                    $form = Form::createBlank('buttons');
+                                    $form->addHeaderAction('edit', __('Edit'))
+                                        ->setURL('/modules/Timetable Admin/courseEnrolment_manage_byPerson_edit.php')
+                                        ->addParam('gibbonPersonID', $gibbonPersonID)
+                                        ->addParam('gibbonSchoolYearID', $session->get('gibbonSchoolYearID'))
+                                        ->addParam('type', $role)
+                                        ->displayLabel();
+                                    echo $form->getOutput();
                                 }
                             }
 
@@ -2356,12 +2379,21 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                                     ++$yearCount;
                                     try {
                                         $data = array('gibbonPersonID' => $gibbonPersonID, 'gibbonSchoolYearID' => $rowYears['gibbonSchoolYearID']);
-                                        $sql = "SELECT gibbonActivity.gibbonActivityID, gibbonActivity.name, gibbonActivity.type, gibbonActivity.programStart, gibbonActivity.programEnd, GROUP_CONCAT(gibbonSchoolYearTerm.nameShort ORDER BY gibbonSchoolYearTerm.sequenceNumber SEPARATOR ', ') as terms, gibbonActivityStudent.status, NULL AS role FROM gibbonActivity JOIN gibbonActivityStudent ON (gibbonActivity.gibbonActivityID=gibbonActivityStudent.gibbonActivityID) LEFT JOIN gibbonSchoolYearTerm ON (FIND_IN_SET(gibbonSchoolYearTerm.gibbonSchoolYearTermID, gibbonActivity.gibbonSchoolYearTermIDList)) WHERE gibbonActivityStudent.gibbonPersonID=:gibbonPersonID AND gibbonActivity.gibbonSchoolYearID=:gibbonSchoolYearID AND active='Y' AND gibbonActivityStudent.status <> 'Not Accepted' GROUP BY gibbonActivity.gibbonActivityID, gibbonActivityStudent.status ORDER BY gibbonActivityStudent.status, gibbonActivity.name";
+                                        $sql = "SELECT gibbonActivity.gibbonActivityID, gibbonActivity.name, gibbonActivity.type, gibbonActivity.programStart, gibbonActivity.programEnd, GROUP_CONCAT(gibbonSchoolYearTerm.nameShort ORDER BY gibbonSchoolYearTerm.sequenceNumber SEPARATOR ', ') as terms, gibbonActivityStudent.status, NULL AS role 
+                                        FROM gibbonActivity 
+                                        JOIN gibbonActivityStudent ON (gibbonActivity.gibbonActivityID=gibbonActivityStudent.gibbonActivityID) 
+                                        LEFT JOIN gibbonActivityCategory ON (gibbonActivityCategory.gibbonActivityCategoryID=gibbonActivity.gibbonActivityCategoryID) 
+                                        LEFT JOIN gibbonSchoolYearTerm ON (FIND_IN_SET(gibbonSchoolYearTerm.gibbonSchoolYearTermID, gibbonActivity.gibbonSchoolYearTermIDList)) 
+                                        WHERE gibbonActivityStudent.gibbonPersonID=:gibbonPersonID 
+                                        AND gibbonActivity.gibbonSchoolYearID=:gibbonSchoolYearID 
+                                        AND gibbonActivity.active='Y' 
+                                        AND gibbonActivityStudent.status <> 'Not Accepted' 
+                                        AND (gibbonActivityCategory.gibbonActivityCategoryID IS NULL OR CURRENT_TIMESTAMP >= gibbonActivityCategory.accessEnrolmentDate)
+                                        GROUP BY gibbonActivity.gibbonActivityID, gibbonActivityStudent.status ORDER BY gibbonActivityStudent.status, gibbonActivity.name";
                                         $result = $connection2->prepare($sql);
                                         $result->execute($data);
                                         $resultData = $result->fetchAll();
                                     } catch (PDOException $e) {
-                                        exit;
                                     }
 
                                     $table = DataTable::create('activities');
@@ -2430,10 +2462,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
                             $highestActionBehaviour = getHighestGroupedAction($guid, '/modules/Behaviour/behaviour_view.php', $connection2);
                             
                             //Print assessments
-                            if ($highestActionBehaviour == 'View Behaviour Records_all') {
-                                echo getBehaviourRecord($container, $gibbonPersonID);
-                            } else {
+                            if ($highestActionBehaviour == 'View Behaviour Records_my') {
                                 echo getBehaviourRecord($container, $gibbonPersonID, $session->get('gibbonPersonID'));
+                            } else {
+                                echo getBehaviourRecord($container, $gibbonPersonID);
                             }
                         }
                     }

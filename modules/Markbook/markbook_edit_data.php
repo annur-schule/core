@@ -291,6 +291,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
                     $form = Form::create('markbookEditData', $session->get('absoluteURL').'/modules/'.$session->get('module').'/markbook_edit_dataProcess.php?gibbonCourseClassID='.$gibbonCourseClassID.'&gibbonMarkbookColumnID='.$gibbonMarkbookColumnID.'&address='.$session->get('address'));
                     $form->setFactory(DatabaseFormFactory::create($pdo));
                     $form->addHiddenValue('address', $session->get('address'));
+                    $form->enableQuickSave();
 
                     // Add header actions
                     if (!empty($values['gibbonPlannerEntryID'])) {
@@ -347,15 +348,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
 
                         // Create a rubric link object (for reusabilty)
                         $rubricLinkSource = $form->getFactory()
-                            ->createWebLink('<img title="'.__('Mark Rubric').'" src="./themes/'.$session->get('gibbonThemeName').'/img/rubric.png" style="margin-left:4px;"/>')
-                            ->setURL($session->get('absoluteURL').'/fullscreen.php?q=/modules/Markbook/markbook_view_rubric.php')
-                            ->setClass('thickbox')
+                            ->createAction('markbook', __('Mark Rubric'))
+                            ->setURL('/modules/Markbook/markbook_view_rubric.php')
                             ->addParam('gibbonCourseClassID', $gibbonCourseClassID)
                             ->addParam('gibbonMarkbookColumnID', $gibbonMarkbookColumnID)
-                            ->addParam('width', '1100')
-                            ->addParam('height', '550');
+                            ->modalWindow(1100, 550)
+                            ->setClass('align-middle submit-button');
 
-                        $table = $form->addRow()->addTable()->setClass('smallIntBorder fullWidth colorOddEven noMargin noPadding noBorder');
+                        $table = $form->addRow()->addTable()->setClass('smallIntBorder w-full colorOddEven noMargin noPadding noBorder');
 
                         $detailsText = ($values['unitName'] != '')? $values['unitName'].'<br/>' : '';
                         $detailsText .= !empty($values['completeDate'])? __('Marked on').' '.Format::date($values['completeDate']) : __('Unmarked');
@@ -378,7 +378,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
 
                         $header->addTableCell($values['name'])
                             ->setTitle($values['description'])
-                            ->append('<br><span class="small emphasis" style="font-weight:normal;">'.$detailsText.'</span>')
+                            ->append('<br><span class="text-xs italic" style="font-weight:normal;">'.$detailsText.'</span>')
                             ->setClass('textCenter')
                             ->colSpan(5);
 
@@ -464,7 +464,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
 
                         $col = $row->onlyIf($hasAttainment)->addColumn();
                         $col->addSelectGradeScaleGrade($count.'-attainmentValue', $values['gibbonScaleIDAttainment'])
-                            ->setClass('textCenter gradeSelect inline-block')
+                            ->setClass('w-auto gradeSelect inline-block')
                             ->selected($student['attainmentValue']);
 
                         if ($hasAttainment && $hasAttainmentRubric) {
@@ -475,17 +475,19 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_dat
                             $col->addContent($rubricLink->getOutput())->setClass('inline-block ml-1');
                         }
 
-                        $effort = $row->onlyIf($hasEffort)
-                            ->addSelectGradeScaleGrade($count.'-effortValue', $values['gibbonScaleIDEffort'])
-                            ->setClass('textCenter gradeSelect')
-                            ->selected($student['effortValue']);
+                        if ($hasEffort) {
+                            $col = $row->onlyIf($hasAttainment)->addColumn();
+                            $effort = $col->addSelectGradeScaleGrade($count.'-effortValue', $values['gibbonScaleIDEffort'])
+                                ->setClass('w-auto gradeSelect inline-block')
+                                ->selected($student['effortValue']);
 
-                        if ($hasEffort && $hasEffortRubric) {
-                            $rubricLink = clone $rubricLinkSource;
-                            $rubricLink->addParam('gibbonPersonID', $student['gibbonPersonID']);
-                            $rubricLink->addParam('gibbonRubricID', $values['gibbonRubricIDEffort']);
-                            $rubricLink->addParam('type', 'effort');
-                            $effort->append($rubricLink->getOutput());
+                            if ($hasEffort && $hasEffortRubric) {
+                                $rubricLink = clone $rubricLinkSource;
+                                $rubricLink->addParam('gibbonPersonID', $student['gibbonPersonID']);
+                                $rubricLink->addParam('gibbonRubricID', $values['gibbonRubricIDEffort']);
+                                $rubricLink->addParam('type', 'effort');
+                                $effort->append($rubricLink->getOutput());
+                            }
                         }
 
                         $col = $row->onlyIf($hasComment || $hasUpload)->addColumn()->addClass('stacked');
