@@ -354,13 +354,13 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
             }
         }
 
-        //Show parent photo uploader
+        /* //Show parent photo uploader
         if ($this->session->get('address') == '' and $this->session->exists('username')) {
             $sidebar = $this->getParentPhotoUploader();
             if ($sidebar != false) {
                 echo $sidebar;
             }
-        }
+        } */
 
         //Show homescreen widget for message wall
         if ($this->session->get('address') == '') {
@@ -638,9 +638,13 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                 $form->addHiddenValue('address', $this->session->get('address'));
 
                 $roles = $this->session->get('gibbonRoleIDAll', []);
+                $roles_array = array_combine(array_column($roles, 0), array_column($roles, 1));
+                foreach($roles_array as $index=>$role){
+                    $roles_array[$index] = __($role);
+                } 
                 $row = $form->addRow()->addClass('flex');
                     $row->addSelect('gibbonRoleID')
-                        ->fromArray(array_combine(array_column($roles, 0), array_column($roles, 1)))
+                        ->fromArray($roles_array)
                         ->placeholder(null)
                         ->addClass('flex-grow')
                         ->groupAlign('left')
@@ -724,10 +728,12 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
 
         if ($this->category == 'Parent') {
             $output .= '<div class="column-no-break">';
-            
+            $output .= "<h2 style='margin-bottom: 10px'>";
+            $output .= 'Profile Photo';
+            $output .= '</h2>';
 
             if ($this->session->get('image_240') == '') { //No photo, so show uploader
-                /* $output .= '<p>';
+                $output .= '<p>';
                 $output .= __('Please upload a passport photo to use as a profile picture.').' '.__('240px by 320px').'.';
                 $output .= '</p>';
 
@@ -739,12 +745,9 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                     $row->addFileUpload('file1')->accepts('.jpg,.jpeg,.gif,.png')->setMaxUpload(false)->setClass('w-full');
                     $row->addSubmit(__('Go'));
 
-                $output .= $form->getOutput(); */
+                $output .= $form->getOutput();
 
             } else { //Photo, so show image and removal link
-                $output .= "<h2 style='margin-bottom: 10px'>";
-                $output .= 'Profile Photo';
-                $output .= '</h2>';
                 $output .= '<p>';
                 $output .= Format::userPhoto($this->session->get('image_240'), 240);
                 $output .= "<div style='margin-left: 220px; margin-top: -50px'>";
