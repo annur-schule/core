@@ -70,7 +70,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_view.php
 
     //Count number of columns
 	$data = array('gibbonCourseClassID' => $gibbonCourseClassID);
-	$sql = 'SELECT * FROM gibbonMarkbookColumn WHERE gibbonCourseClassID=:gibbonCourseClassID ORDER BY complete, completeDate DESC';
+    $termFilter = (empty($gibbonSchoolYearTermID) or $gibbonSchoolYearTermID<0)? '' : ' AND gibbonSchoolYearTermID='. $gibbonSchoolYearTermID;
+	$sql = 'SELECT * FROM gibbonMarkbookColumn WHERE gibbonCourseClassID=:gibbonCourseClassID '. $termFilter .' ORDER BY sequenceNumber';
 	$result = $pdo->executeQuery($data, $sql, '_');
     $columns = $result->rowCount();
     if ($columns < 1) {

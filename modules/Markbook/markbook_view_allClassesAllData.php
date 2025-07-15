@@ -250,6 +250,7 @@ require_once __DIR__ . '/src/MarkbookColumn.php';
             $form->addHeaderAction('export', __('Export'))
                 ->setURL('/modules/Markbook/markbook_viewExportAll.php')
                 ->addParam('gibbonCourseClassID', $gibbonCourseClassID)
+                ->addParam('gibbonSchoolYearTermID', $gibbonSchoolYearTermID)
                 ->addParam('return', 'markbook_view.php')
                 ->directLink()
                 ->displayLabel();
