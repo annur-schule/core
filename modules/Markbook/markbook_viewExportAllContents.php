@@ -70,8 +70,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_view.php
 
     //Count number of columns
 	$data = array('gibbonCourseClassID' => $gibbonCourseClassID);
-	$sql = 'SELECT * FROM gibbonMarkbookColumn WHERE gibbonCourseClassID=:gibbonCourseClassID ORDER BY complete, completeDate DESC';
-	$result = $pdo->executeQuery($data, $sql, '_');
+    $termFilter = (empty($gibbonSchoolYearTermID) or $gibbonSchoolYearTermID<0)? '' : ' AND gibbonSchoolYearTermID='. $gibbonSchoolYearTermID;
+	$sql = 'SELECT * FROM gibbonMarkbookColumn WHERE gibbonCourseClassID=:gibbonCourseClassID '. $termFilter .' ORDER BY sequenceNumber';
+		$result = $pdo->executeQuery($data, $sql, '_');
     $columns = $result->rowCount();
     if ($columns < 1) {
         echo "<div class='warning'>";
@@ -135,7 +136,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_view.php
             }
 
             if ($columnID[$i]) {
-				$excel->getActiveSheet()->setCellValueByColumnAndRow((2 + ($i * ($subColCount))), 1, $row['name']);
+				$excel->getActiveSheet()->setCellValueByColumnAndRow((2 + ($i * ($subColCount))), 1, $row['name'] . ' (' . $row['type'] . ')');
                 $excel->getActiveSheet()->getStyleByColumnAndRow((2 + ($i * ($subColCount))), 1)->applyFromArray($style_border);
                 $excel->getActiveSheet()->getStyleByColumnAndRow((2 + ($i * ($subColCount))), 1)->applyFromArray($style_head_fill);
                 $excel->getActiveSheet()->getStyleByColumnAndRow((3 + ($i * ($subColCount))), 1)->applyFromArray($style_border);

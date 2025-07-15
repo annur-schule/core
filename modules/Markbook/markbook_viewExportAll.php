@@ -23,6 +23,7 @@ include '../../gibbon.php';
 
 $gibbonCourseClassID = $_GET['gibbonCourseClassID'] ?? '';
 $return = $_GET['return'] ?? '';
+$gibbonSchoolYearTermID = $_GET['gibbonSchoolYearTermID'] ?? '';
 $URL = $session->get('absoluteURL')."/index.php?q=/modules/Markbook/$return";
 
 if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_view.php') == false) {
@@ -31,7 +32,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_view.php
 } else {
     try {
         $data = array('gibbonCourseClassID' => $gibbonCourseClassID);
-        $sql = 'SELECT * FROM gibbonMarkbookColumn JOIN gibbonCourseClass ON (gibbonMarkbookColumn.gibbonCourseClassID=gibbonCourseClass.gibbonCourseClassID) WHERE gibbonCourseClass.gibbonCourseClassID=:gibbonCourseClassID';
+        $termFilter = (empty($gibbonSchoolYearTermID) or $gibbonSchoolYearTermID<0)? '' : ' AND gibbonSchoolYearTermID='. $gibbonSchoolYearTermID;
+        $sql = 'SELECT * FROM gibbonMarkbookColumn JOIN gibbonCourseClass ON (gibbonMarkbookColumn.gibbonCourseClassID=gibbonCourseClass.gibbonCourseClassID) WHERE gibbonCourseClass.gibbonCourseClassID=:gibbonCourseClassID' . $termFilter;
         $result = $connection2->prepare($sql);
         $result->execute($data);
     } catch (PDOException $e) {
