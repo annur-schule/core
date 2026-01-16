@@ -1,8 +1,8 @@
-version: '3'
+#version: '3'
 services:
 
   php8site:
-    image: annurschule/gibbon:php7.4
+    image: annurschule/gibbon:php8.2
     build:
       context: .
     container_name: annur_php_gibbon_test
@@ -17,7 +17,7 @@ services:
       - intern-nw-1
   
   db:
-    image: mysql:5.7
+    image: mysql:8
     container_name: gibbon_mysql_test
     environment:
       MYSQL_DATABASE: gibbon_DB
@@ -27,15 +27,18 @@ services:
       - path: ./override.env
         required: false
     # By default expose a closed port, enable for dev
-    ports: 
-      - ${MYSQL_EXPOSED_PORT:-5555:5555}
-    expose:
-      - '3306'
+
     volumes:
       - ../db:/var/lib/mysql
       - ../db_backup:/var/gibbon_db_backup
     networks:
       - intern-nw-1
+
+    expose:
+      - '3306'
+
+    ports:
+      - '3306:3306'
 
 
 # Network configuration (optional, but recommended for better isolation)

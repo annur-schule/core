@@ -3,7 +3,7 @@
 # docker-compose up
 # open localhost:8081
 
-FROM php:7.4.32-apache
+FROM php:8.2-apache
 
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y libzip-dev zip gettext-base default-mysql-client libpng-dev locales libicu-dev

@@ -761,3 +761,4 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
         return $output;
     }
 }
+
