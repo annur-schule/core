@@ -1,48 +1,44 @@
-#version: '3'
 services:
 
   php8site:
     image: annurschule/gibbon:php8.2
     build:
       context: .
-    container_name: annur_php_gibbon_test
+    container_name: annur_php_gibbon
     volumes:
       - ..:/var/www/html
-      
     ports:
       - "8081:80"
     depends_on:
-      - "db"
+      - db
     networks:
       - intern-nw-1
-  
+
   db:
     image: mysql:8
-    container_name: gibbon_mysql_test
+    container_name: gibbon_mysql
+
+    env_file:
+      - path: ./setup.env
+      - path: ../../override.env
+        required: false
+
     environment:
       MYSQL_DATABASE: gibbon_DB
       MYSQL_USER: gibbon
-    env_file:
-      - path: ./setup.env
-      - path: ./override.env
-        required: false
-    # By default expose a closed port, enable for dev
+      #Production passwords set in ../../override.env
 
     volumes:
-      - ../db:/var/lib/mysql
-      - ../db_backup:/var/gibbon_db_backup
+      - /root/schule/gibbon_db:/var/lib/mysql
+      - /root/schule/gibbon_db_backup:/var/gibbon_db_backup
+
     networks:
       - intern-nw-1
 
-    expose:
-      - '3306'
-
     ports:
-      - '3306:3306'
-
+      - "3306:3306"   # ideally remove this in production
 
 # Network configuration (optional, but recommended for better isolation)
 networks:
   intern-nw-1:
     driver: bridge
-    
