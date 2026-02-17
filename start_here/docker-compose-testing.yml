@@ -19,14 +19,12 @@ services:
     container_name: gibbon_mysql
 
     env_file:
-      - path: ./setup.env
-      - path: ../../override.env
-        required: false
+      - ./setup.env
 
     environment:
       MYSQL_DATABASE: gibbon_DB
       MYSQL_USER: gibbon
-      #Production passwords set in ../../override.env
+
 
     volumes:
       - ../../db:/var/lib/mysql
