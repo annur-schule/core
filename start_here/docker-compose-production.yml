@@ -27,7 +27,7 @@ services:
       #Production passwords set in ../../secrets.env
 
     volumes:
-      - /root/schule/gibbon_db:/var/lib/mysql
+      - /root/schule/gibbon_db_8:/var/lib/mysql
       - /root/schule/gibbon_db_backup:/var/gibbon_db_backup
 
     networks:
