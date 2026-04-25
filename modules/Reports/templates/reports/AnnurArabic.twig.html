@@ -1,0 +1,681 @@
+{#<!--
+name: Annur Arabic
+category: Reporting Cycle
+types: Body
+sources:
+    student: Student
+    attendance: AttendanceByCycle
+    reportingCycle: ReportingCycle
+    courseCriteria: CourseCriteria
+-->#}
+
+
+{%set DebugOutputs = false %}
+
+{{- stylesheet ? include(stylesheet) -}}
+{% import _self as m %}
+
+
+
+{% macro weightedRoundedAvg(items) %}
+    
+    {% set trimmedItems = [] %}
+
+    {% for i in items %}
+        {% set trimmedItems = trimmedItems|merge([{
+            value: i.value|trim,
+            weight: i.weight|trim 
+        }]) %}
+    {% endfor %}
+
+    {% set valid = trimmedItems|filter(i =>
+        i.value is not same as(null)
+        and i.value is not same as('')
+        and (i.value matches '/^-?\\d+(\\.\\d+)?$/')
+        and i.weight is not same as(null)
+        and (i.weight matches '/^-?\\d+(\\.\\d+)?$/')
+        and i.weight > 0
+    ) %}
+
+
+    {% if valid|length == 0 %}
+        {{- '' -}}
+    {% else %}
+        {% set totalWeight = valid|reduce((c, i) => c + i.weight, 0) %}
+        {% set weightedSum = valid|reduce((c, i) => c + (i.value * i.weight), 0) %}
+        {{- m.safeRound(weightedSum / totalWeight, 0, 'common') -}}
+    {% endif %}
+
+    
+{% endmacro %}
+
+{% macro safeRound(val, precision, method) %}
+    {#<!-- saferoundVal = <code>{{ value  }}</code> -->#}
+    {%set value= val|trim %}
+    {% if value is null or value is same as('') or value is same as(false) %}
+        {{- '' -}}
+    {% else %}
+        {# Check if value is numeric before rounding #}
+        {% set stringValue = value|trim %}
+        {% if stringValue matches '/^-?\\d+(\\.\\d+)?$/' %}
+            {{- value|round(precision, method) -}}
+        {% else %}
+            {{- '' -}}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+
+{% macro printPercent(val) %}
+    {%set value= val|trim %}
+    {% if value is null or value is same as('') or value is same as(false) %}
+        {{- '--' -}}
+    {% else %}
+        {{- value ~ '%' -}}
+    {% endif %}
+{% endmacro %}
+
+    <style>
+        .table-outer {
+            border: 1px solid #dbe0e6;
+            border-collapse: collapse;
+            
+        }
+        .table-outer th, .table-outer td {
+            border: 1px solid #dbe0e6;
+            padding: 10px;
+        }
+
+
+        .marks{
+            text-align: center;
+            width: 40px;
+        }
+
+        .numbers{
+            text-align: center;
+            width: 15px;
+            vertical-align: bottom;
+        }
+
+        .arabic {
+            direction:"rtl";
+            text-align: right;
+        }
+
+        .details {
+            font-size: small;
+        }
+
+        .empty-cells {
+            line-height : 5px;
+        }
+
+        .page-table-cell {
+            page-break-inside: avoid;
+            width: 138mm; 
+            height: 189mm;
+            border: 1px solid #dbe0e6;
+            padding: 15px;
+
+        }
+
+    </style>
+
+
+
+{#<!-- Attendance Calclulation -->#}
+{% set numPresent = 0 %}
+{% set numAbsent = 0 %}
+{% set numLate = 0 %}
+{% set ArabischAlHazoor = 0 %}
+
+
+{% if reportingCycle %}
+    {% for cycleNum in range(1, reportingCycle.cycleTotal|default(1)) %}
+        {% set cycleName = reportingCycle.cycles[cycleNum] %}
+        {% for cycleNum in range(1, reportingCycle.cycleTotal|default(1)) %}
+            {% set numPresent = numPresent + (cycleNum? attendance[cycleNum].present|default(0)) %}
+            {% set numAbsent = numAbsent + (cycleNum? attendance[cycleNum].absent|default(0)) %}
+            {% set numLate = numLate + (cycleNum? attendance[cycleNum].late|default(0)) %}
+        {% endfor %}
+    {% endfor %}
+
+{% endif -%}
+{% set ArabischAlHazoor = ((numPresent + numLate )/ (numPresent + numAbsent + numLate) * 100)|round(0, 'common') %}
+
+{%if DebugOutputs %}
+    <br>
+    Presence Calculation Debug Outputs:
+    <br>
+    Present : {{- numPresent -}},
+    Absent : {{- numAbsent -}},
+    Late : {{- numLate -}}
+    <br>
+    ArabischAlHazoor : {{- ArabischAlHazoor -}} %
+    <br>
+{% endif %}
+
+{#<!-- Course Criteria Extraction -->#}
+
+
+{% set ArabischAlqiratKA = 0 %}
+{% set ArabischAlqiratP = 0 %}
+
+{% set ArabischAlqawaidKA = 0 %}
+{% set ArabischAlqawaidP = 0 %}
+
+{% set ArabischAlTabirKA = 0 %}
+{% set ArabischAlTabirP = 0 %}
+
+{% set ArabischAlkhatKA = 0 %}
+{% set ArabischAlkhatP = 0 %}
+
+{% set tarbiatIslamiaKA = 0 %}
+{% set tarbiatIslamiaP = 0 %}
+
+{% set WajibatManzaliya = 0 %}
+{% set ArabischSalook = 0 %}
+{% set ArabischMalahazat = '' %}
+
+
+{% set QuranAlqirat_1 = 0%}
+{% set QuranAlqirat_2 = 0%}
+{% set QuranHifdh_1 = 0%}
+{% set QuranHifdh_2 = 0%}
+{% set QuranPrufung = 0%}
+{% set QuranSalook = 0%}
+{% set QuranMalahazat = '' %}
+
+{% set arabic_course_name =''%}
+{% set quran_course_name ='' %}
+
+{% for course in courseCriteria %}
+
+
+{%if DebugOutputs %}
+My course name: {{ course.courseName }}, class name: {{- course.className -}}
+{% endif %}
+
+{% if 'لغة عربية' in course.courseName %}
+{%if DebugOutputs %}
+' Arabic Course Detected'
+{% endif %}
+{% set arabic_course_name = course.courseNameShort ~ '.' ~ course.className ~ ' - ' ~ course.courseName %}
+{% endif %}
+
+{% if 'قرآن' in course.courseName %}
+{%if DebugOutputs %}
+' Quran Course Detected'
+{% endif %}
+{% set quran_course_name = course.courseNameShort ~ '.' ~ course.className ~ ' - ' ~ course.courseName %}
+
+{% endif %}
+<br>
+
+
+
+{%- for criteria in []|merge(course.perGroup|default([]))|merge(course.perStudent|default([])) -%}
+
+{%if DebugOutputs %}
+    Criteria: {{- criteria.criteriaName -}}, Value: {{- criteria.value -}}, Comment: {{- criteria.comment -}}
+<br>
+{% endif %}
+
+{% if 'لغة عربية' in course.courseName %}
+    {% if criteria.criteriaName == "Arabish Lesen (القراءة): Klassenarbeit" %}
+        {% set ArabischAlqiratKA = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Arabish Lesen (القراءة): Prüfung' %}
+        {% set ArabischAlqiratP = criteria.value|replace({'%': ''})|trim %}
+
+
+    {% elseif criteria.criteriaName == 'Arabish Grammatik (القواعد): Klassenarbeit' %}
+        {% set ArabischAlqawaidKA = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Arabish Grammatik (القواعد): Prüfung' %}
+        {% set ArabischAlqawaidP = criteria.value|replace({'%': ''})|trim %}
+
+    {% elseif criteria.criteriaName == 'Arabish Ausdruck (التعبير): Klassenarbeit' %}
+        {% set ArabischAlTabirKA = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Arabish Ausdruck (التعبير): Prüfung' %}
+        {% set ArabischAlTabirP = criteria.value|replace({'%': ''})|trim %}
+
+    {% elseif criteria.criteriaName == 'Arabish Handschrift und Rechtschreibung (الخط والإملاء): Klassenarbeit' %}
+        {% set ArabischAlkhatKA = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Arabish Handschrift und Rechtschreibung (الخط والإملاء): Prüfung' %}
+        {% set ArabischAlkhatP = criteria.value|replace({'%': ''})|trim %}
+
+    {% elseif criteria.criteriaName == 'Arabish Islamische Erziehung (التربية الاسلامية): Klassenarbeit' %}
+        {% set tarbiatIslamiaKA = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Arabish Islamische Erziehung (التربية الاسلامية): Prüfung' %}
+        {% set tarbiatIslamiaP = criteria.value|replace({'%': ''})|trim %}
+
+    {% elseif criteria.criteriaName == 'Arabish Hausaufgaben (الواجبات منزلية)' %}
+        {% set WajibatManzaliya = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName starts with 'Arabish Verhalten' %}
+        {% set ArabischSalook = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Arabish Lehreranmerkungen (ملاحظات المعلم)' %}
+        {% set ArabischMalahazat = criteria.comment|trim %}
+    {% endif %}
+
+
+{% elseif 'قرآن' in course.courseName %}
+    {% if criteria.criteriaName == 'Quran Lesen / Nourania (القراءة / النورانية) 1:' %}
+        {% set QuranAlqirat_1 = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Quran Lesen / Nourania (القراءة / النورانية) 2' %}
+        {% set QuranAlqirat_2 = criteria.value|replace({'%': ''})|trim %}
+
+
+    {% elseif criteria.criteriaName == 'Quran Auswendiglernen (الحفظ) 1' %}
+        {% set QuranHifdh_1 = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Quran Auswendiglernen (الحفظ) 2' %}
+        {% set QuranHifdh_2 = criteria.value|replace({'%': ''})|trim %}
+
+    {% elseif criteria.criteriaName == 'Quran Prüfung	(الامتحان)' %}
+        {% set QuranPrufung = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Quran Verhalten	(السلوك)' %}
+        {% set QuranSalook = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Quran Lehreranmerkungen (ملاحظات المعلم)' %}
+        {% set QuranMalahazat = criteria.comment|trim %}
+
+    {% endif %}
+{% endif %}
+{%- endfor -%}
+{%- endfor -%}
+
+
+
+{% set ArabischAlqiratKomb = m.weightedRoundedAvg([
+    {value: ArabischAlqiratKA, weight: 1},
+    {value: ArabischAlqiratP, weight: 1}
+]) %}
+
+{% set ArabischAlqawaidKomb = m.weightedRoundedAvg([
+    {value: ArabischAlqawaidKA, weight: 1},
+    {value: ArabischAlqawaidP, weight: 1}
+]) %}
+
+{% set ArabischAlTabirKomb = m.weightedRoundedAvg([
+    {value: ArabischAlTabirKA, weight: 1},
+    {value: ArabischAlTabirP, weight: 1}
+]) %}
+
+{% set ArabischAlkhatKomb = m.weightedRoundedAvg([
+    {value: ArabischAlkhatKA, weight: 1},
+    {value: ArabischAlkhatP, weight: 1}
+]) %}
+
+{% set tarbiatIslamiaKomb = m.weightedRoundedAvg([
+    {value: tarbiatIslamiaKA, weight: 1},
+    {value: tarbiatIslamiaP, weight: 1}
+]) %}
+
+
+{%set lughatArabiaKomb = m.weightedRoundedAvg([
+    {value: ArabischAlqiratKomb, weight: 1},
+    {value: ArabischAlqawaidKomb, weight: 1},
+    {value: ArabischAlTabirKomb, weight: 1},
+    {value: ArabischAlkhatKomb, weight: 1}
+]) %}
+
+
+
+{% set Endergebnis = m.weightedRoundedAvg([
+    {value: lughatArabiaKomb, weight: 2},
+    {value: tarbiatIslamiaKomb, weight: 2},
+    {value: ArabischAlHazoor, weight: 2},
+    {value: WajibatManzaliya, weight: 1},
+    {value: ArabischSalook, weight: 1}
+]) %}
+
+
+
+
+{#<!-- Debuuging Outputs Arabic   -->#}
+{%if DebugOutputs %} 
+    <br>
+    ArabischAlqiratKA: {{- ArabischAlqiratKA -}},
+    ArabischAlqiratP: {{- ArabischAlqiratP -}},
+    ArabischAlqiratKomb: {{- ArabischAlqiratKomb -}}
+    <br>
+    ArabischAlqawaidKA: {{- ArabischAlqawaidKA -}},
+    ArabischAlqawaidP: {{- ArabischAlqawaidP -}},
+    <br>
+    ArabischAlTabirKA: {{- ArabischAlTabirKA -}},
+    ArabischAlTabirP: {{- ArabischAlTabirP -}},
+    <br>
+    ArabischAlkhatKA: {{- ArabischAlkhatKA -}},
+    ArabischAlkhatP: {{- ArabischAlkhatP -}},
+    <br>
+    tarbiatIslamiaKA: {{- tarbiatIslamiaKA -}},
+    tarbiatIslamiaP: {{- tarbiatIslamiaP -}},
+    <br>
+    WajibatManzaliya: {{- WajibatManzaliya -}},
+    ArabischSalook: {{- ArabischSalook -}}
+    <br>
+    Endergebnis: {{- Endergebnis -}} %
+    <br>
+{% endif %}
+
+
+
+{#<!-- ---------------------------------------------  -->#}
+{#<!-- Quran Calculations-->#}
+{#<!-- ---------------------------------------------  -->#}
+
+{%set QuranAlqirat = m.weightedRoundedAvg([
+    {value: QuranAlqirat_1, weight: 0.5},
+    {value: QuranAlqirat_2, weight: 0.5}
+]) %}
+
+{%set QuranHifdh = m.weightedRoundedAvg([
+    {value: QuranHifdh_1, weight: 0.5},
+    {value: QuranHifdh_2, weight: 0.5}
+]) %}
+
+{%set QuranKomb = m.weightedRoundedAvg([
+    {value: QuranAlqirat, weight: 0.25},
+    {value: QuranHifdh, weight: 0.25},
+    {value: QuranPrufung, weight: 0.5}
+]) %}
+
+
+
+{#<!-- Debugging Outputs Quran -->#}
+{%if DebugOutputs %}
+    QuranAlqirat_1: {{- QuranAlqirat_1 -}}, 
+    QuranAlqirat_2: {{- QuranAlqirat_2 -}}, 
+    QuranAlqirat: {{- QuranAlqirat -}}
+    <br>
+    QuranHifdh_1: {{- QuranHifdh_1 -}}, 
+    QuranHifdh_2: {{- QuranHifdh_2 -}}, 
+    QuranHifdh: {{- QuranHifdh -}}
+    <br>
+    QuranPrufung: {{- QuranPrufung -}}, 
+    QuranKomb: {{- QuranKomb -}}
+{% endif %}
+
+
+
+<table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
+<tr>
+    <td class="page-table-cell"> 
+        <table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
+            <tr>
+                <td> Name:</td><td  style="width:80mm; text-align: center; font-weight: bold; min-height: 15mm;">{{ student.preferredName ~ " " ~ student.surname }}</td> <td class="arabic"> :الاسم </td>
+            </tr>
+            <tr>
+                <td style="font-size: small;"> Klasse:</td><td style="width:80mm; text-align: center; font-size: small; min-height: 15mm;">{{- arabic_course_name -}} <br> {{- quran_course_name -}} </td> <td class="arabic" style="font-size: small;"> :الصف </td>
+            </tr>
+         </table>
+    </td>
+    <td class="page-table-cell;" style="vertical-align: bottom;">
+        <table cellspacing="0" cellpadding="4" nobr="true", style="margin: 10pt; border: 1pt solid #dbe0e6; ">
+            <tr>
+                <td style="text-align: left; font-size: small; vertical-align: top; width: 50%;">
+                    <strong>Kurze Beschreibung </strong> 
+<ul>
+  <li>Dieser Bericht zeigt eine prozentuale Bewertung der schulischen Leistungen.
+  </li>
+  <li>Die Arabische Sprache wird in einzelne Kompetenzen (Lesen, Grammatik, Ausdruck, Handschrift/Rechtschreibung) aufgeteilt und zusätzlich als Gesamtergebnis bewertet.
+  </li>
+  <li>Andere Fächer und Bereiche wie Islamische Erziehung, Teilnahme, Hausaufgaben und Verhalten werden ebenfalls separat bewertet.
+  </li>
+  <li>Das Endergebnis fasst alle Bewertungen zu einer Gesamtleistung in Prozent zusammen. 
+  </li>
+</ul>
+
+                </td> 
+                <td class="arabic" style="font-size: small; vertical-align: top; width: 50%">
+                    <strong>وصف مختصر </strong>
+                    <ul>
+  <li>يعرض هذا التقرير تقييماً نسبياً للأداء الدراسي.</li>
+  <li>يتم تقييم مادة اللغة العربية من خلال مهارات منفصلة (القراءة، القواعد، التعبير، الخط والإملاء)، بالإضافة إلى تقييم إجمالي للمادة.</li>
+  <li>كما يتم تقييم مواد ومجالات أخرى مثل التربية الإسلامية، والمشاركة، والواجبات المنزلية، والسلوك بشكل مستقل.</li>
+  <li>يلخّص المعدل النهائي جميع التقييمات في نتيجة إجمالية واحدة معبَّر عنها بنسبة مئوية.</li>
+</ul>
+
+                </td>
+            </tr>
+         </table>
+    </td>
+</tr>
+</table>
+
+<table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
+<tr>
+    <td class="page-table-cell">
+        <table class="table-outer" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
+    <tr>
+        <td  colspan="5" style="border-right: 1px lightgray; background-color: #f5f7fb; font-size: large;"> 
+            Bewertung Arabischer Sprache
+        </td>
+        <td  colspan="4" class="arabic" style="border-left: 0px; background-color: #f5f7fb; font-size: large;"> 
+            تقييم اللغة العربية
+        </td>
+    </tr>
+    <tr>
+        <td  style="height: 8px; padding: 0px 0px; border-bottom:0px"></td>
+        <td  style="height: 8px; padding: 0px 0px; border-bottom:0px"></td>
+        <td  style="height: 8px; padding: 0px 0px; border:0px" colspan="5"></td>
+        <td  style="height: 8px; padding: 0px 0px; border-bottom:0px"></td>
+        <td  style="height: 8px; padding: 0px 0px; border-bottom:0px"></td>
+    </tr>
+
+{#<!--Arabisch Lesen-->#}
+    <tr>
+        <td style="width:8px; border-top:0px; padding: 0px 0px;" rowspan="11"></td>
+     
+        <td rowspan="5" style="border:0px"></td>
+        <td rowspan="4" style="width:8px; border-top:0px; padding: 0px 0px; border-top: 0px; border-bottom: 0px;"> </td>
+    
+        <td >Lesen</td>
+        <td class="marks details">{{- m.printPercent(ArabischAlqiratKomb) -}}</td>
+        <td class="arabic">القراءة</td>
+    
+        <td rowspan="4" style="border-top: 0px; border-bottom: 0px;  width:8px; border-top:0px; padding: 0px 0px;"> </td>
+        <td style="border:0px;" rowspan="5" ></td>
+        <td style="border-top:0px; width:8px; border-top:0px; padding: 0px 0px;" rowspan="11"></td>
+    
+    </tr>
+
+{#<!--Arabisch Grammatik-->#}
+    <tr>
+        <td>Grammatik</td>
+        <td class="marks details">{{- m.printPercent(ArabischAlqawaidKomb) -}}</td>
+        <td class="arabic">القواعد</td>
+    </tr>
+
+
+{#<!--Arabisch Ausdruck-->#}
+    <tr>
+        <td> Ausdruck</td>
+        <td class="marks details">{{- m.printPercent(ArabischAlTabirKomb) -}}</td>
+        <td class="arabic">التعبير</td>
+    </tr>
+
+    
+{#<!--Arabisch Handschrift-->#}
+    <tr>
+        <td>Handschrift und<br>Rechtschreibung</td>
+        <td class="marks details">{{- m.printPercent(ArabischAlkhatKomb) -}}</td>
+        <td class="arabic">الخط والإملاء</td>
+    </tr>
+
+    
+    <tr>
+        <td style="border-bottom: 0px; border-top: 0px; height: 8px; padding: 0px 0px;" colspan="5"></td>
+    </tr>
+
+{#<!--Arabische Sprache-->#}
+
+
+ <tr>
+    <td class="numbers" style="border-top: 0px;">1.</td>
+    <td style="border-top: 0px;" colspan="2">Arabisch Gesamt</td> 
+    <td style="border-top: 0px;"class="marks">{{- m.printPercent(lughatArabiaKomb) -}}</td> 
+    <td style="border-top: 0px;"colspan="2" class="arabic"> العربية – التقييم العام </td>
+    <td class="numbers" style="border-top: 0px;">.١</td>
+ </tr>
+
+<tr>
+    <td colspan="4" style="border-right: 1px lightgray;  background-color: #f5f7fb;"> Allgemeine Entwicklung</td>
+    <td colspan="3" class="arabic" style="border-left: 0px; background-color: #f5f7fb;"> التطوّر العام </td>
+</tr>
+
+<tr>
+    <td style="font-size: small;" class="numbers">2.</td>
+    <td style="font-size: small;" colspan="2">Islamische Erziehung</td> 
+    <td style="font-size: small;" class="marks">{{- m.printPercent(tarbiatIslamiaKomb) -}}</td> 
+    <td style="font-size: small;" colspan="2" class="arabic">التربية الاسلامية</td>
+    <td style="font-size: small;" class="numbers">.٢</td>
+</tr>
+
+<tr>
+    <td style="font-size: small;" class="numbers">3.</td>
+    <td style="font-size: small;" colspan="2">Teilnahme</td> 
+    <td style="font-size: small;" class="marks">{{- m.printPercent(ArabischAlHazoor) -}}</td> 
+    <td style="font-size: small;" colspan="2" class="arabic">الحضور </td>
+    <td style="font-size: small;" class="numbers">.٣</td>
+</tr>
+
+<tr>
+    <td style="font-size: small;" class="numbers">4.</td>
+    <td style="font-size: small;" colspan="2">Hausaufgaben</td> 
+    <td style="font-size: small;" class="marks" >{{- m.printPercent(WajibatManzaliya)}}</td> 
+    <td style="font-size: small;" colspan="2" class="arabic" >الواجبات منزلية</td>
+    <td style="font-size: small;" class="numbers" >.٤</td>
+</tr>
+
+<tr>
+    <td class="numbers" style="font-size: small;">5.</td>
+    <td colspan="2" style="font-size: small;">Verhalten</td> 
+    <td class="marks" style="font-size: small;">{{- m.printPercent(ArabischSalook) -}}</td> 
+    <td colspan="2" class="arabic" style="font-size: small;">السلوك</td>
+    <td class="numbers" style="font-size: small;">.٥</td>
+</tr>
+
+<tr>
+    <td style="font-size: large; background-color: #f5f7fb;" colspan="4">Endnote</td> 
+    <td style ="background-color: #f5f7fb;" class="marks">{{- m.printPercent(Endergebnis) -}}</td> 
+    <td style="font-size: large; background-color: #f5f7fb;" colspan="4" class="arabic">المعدل النهائي</td>
+</tr>
+ 
+</table>
+
+
+<table class="w-full border" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; margin-top: 10px;">
+    <tr>
+        <td  colspan="1" class="bg-primary" style="text-align: left; font-size: large;"> 
+            Lehreranmerkungen
+        </td>
+        <td  colspan="1" class="bg-primary arabic" style="text-align: right; font-size: large;"> 
+            ملاحظات المعلم
+        </td>
+    </tr>
+    <tr>
+        <td  style="height: 40px; padding: 0px 0px; border-bottom:0px" colspan="2">{{- ArabischMalahazat -}}</td>
+    </tr>
+
+</table>    
+
+    </td>
+    <td class="page-table-cell">
+        <table class="table-outer" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
+    <tr>
+        <td  colspan="3" style="border-right: 1px lightgray; background-color: #f5f7fb; font-size: large;"> 
+            Qur’anisches Lernen
+        </td>
+        <td  colspan="2" class="arabic" style="border-left: 0px; background-color: #f5f7fb; font-size: large;"> 
+            تعلّم القرآن الكريم
+        </td>
+    </tr>
+    <tr>
+        <td  style="height: 8px; padding: 0px 0px; border:0px" colspan="5"></td>
+    </tr>
+
+{#<!--Quran Lesen-->#}
+    <tr>
+        
+     
+        
+        <td rowspan="3" style="width:8px; padding: 0px 0px; border-top: 0px; border-bottom: 0px;"></td>
+    
+        <td >Lesen / Nourania</td>
+        <td class="marks details">{{- m.printPercent(QuranAlqirat) -}}</td>
+        <td class="arabic"> القراءة / النورانية</td>
+    
+        <td rowspan="3" style="border-top: 0px; border-bottom: 0px;  width:8px; border-top:0px; padding: 0px 0px;"></td>
+        
+    </tr>
+
+{#<!--Hifdh-->#}
+    <tr>
+        <td>Auswendiglernen</td>
+        <td class="marks details">{{- m.printPercent(QuranHifdh) -}}</td>
+        <td class="arabic">الحفظ</td>
+    </tr>
+
+
+{#<!--Prüfung-->#}
+    <tr>
+        <td>Prüfung</td>
+        <td class="marks details">{{- m.printPercent(QuranPrufung) -}}</td>
+        <td class="arabic">الامتحان </td>
+    </tr>
+
+    
+    <tr>
+        <td style="border-bottom: 0px; border-top: 0px; height: 8px; padding: 0px 0px;" colspan="5"></td>
+    </tr>
+
+{#<!--Quran Kombiniert-->#}
+
+
+ <tr>
+    <td style="font-size: large; border-top: 0px; background-color: #f5f7fb;" colspan="2">Endnote</td> 
+    <td style="border-top: 0px; background-color: #f5f7fb;"class="marks">{{- m.printPercent(QuranKomb) -}}</td> 
+    <td style="border-top: 0px; background-color: #f5f7fb;" colspan="2" class="arabic">المعدل النهائي</td>
+ </tr>
+
+
+<tr>
+    <td colspan="2" style="font-size: small;">Verhalten</td> 
+    <td class="marks" style="font-size: small;">{{- m.printPercent(QuranSalook) -}}</td> 
+    <td colspan="2" class="arabic" style="font-size: small;">السلوك</td>
+</tr>
+
+<tr>
+    <td style="font-size: small;" colspan="2">Teilnahme</td> 
+    <td style="font-size: small;" class="marks">{{- m.printPercent(ArabischAlHazoor) -}}</td> 
+    <td style="font-size: small;" colspan="2" class="arabic">الحضور</td>
+</tr>
+
+ 
+</table>
+
+
+<table class="w-full border" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; margin-top: 10px;">
+    <tr>
+        <td  colspan="1" class="bg-primary" style="text-align: left; font-size: large;"> 
+            Lehreranmerkungen
+        </td>
+        <td  colspan="1" class="bg-primary arabic" style="text-align: right; font-size: large;"> 
+            ملاحظات المعلم
+        </td>
+    </tr>
+    <tr>
+        <td  style="height: 40px; padding: 0px 0px; border-bottom:0px" colspan="2">{{- QuranMalahazat -}}</td>
+    </tr>
+
+</table>
+    
+        
+    </td>
+</tr>
+</table>
+
+
+
+
+
+

@@ -1,7 +1,3 @@
-# execute the following command
-# docker image build -t annurschule/gibbon:php7.4 .
-# docker-compose up
-# open localhost:8081
 
 FROM php:8.2-apache
 
