@@ -1,0 +1,17 @@
+Steps to recreate offline version.
+
+Hint: root password is stored on server on the following path:
+/root/schule/secrets.env
+
+1. install gibbon + offline data that comes with gibbon
+2. Test if gibbon is working correctly.
+3. Downlaod db data from annur live server 
+	a. docker exec gibbon_mysql mysqldump -u root -p'root_password' gibbon_DB > db_backup.sql 
+	b. gzip db_backup.sql 
+	c. on local machine scp schule:/root/schule/db_backup.sql.gz .
+3. Overwrite the existing data with downloaded data
+	a. gunzip  db_backup.sql.gz
+	b. docker exec -i gibbon_mysql mysql -u root -p'root_password' -e "DROP DATABASE gibbon_DB; CREATE DATABASE gibbon_DB"
+	c. docker exec -i gibbon_mysql mysql -u root -p'root_password' gibbon_DB < db_backup.sql
+	d. docker exec -i gibbon_mysql mysql -u root -p'root_password' gibbon_DB -e "UPDATE \`gibbonSetting\` SET value='http://localhost:8081' WHERE gibbonSettingID=1;" 
+	e. docker exec -i gibbon_mysql mysql -u root -p'root_password' gibbon_DB -e "UPDATE \`gibbonSetting\` SET value='dummyEmailPass' WHERE name='mailerSMTPPassword'; UPDATE \`gibbonSetting\` SET value='purple' WHERE name='themeColour'; UPDATE \`gibbonSetting\` SET value='Development' WHERE name='installType';"
