@@ -7,6 +7,16 @@ sources:
     attendance: AttendanceByCycle
     reportingCycle: ReportingCycle
     courseCriteria: CourseCriteria
+    report: Report
+config:
+    Schuljahr:
+        label: Schuljahr
+        type: text
+        default: 2025-2026
+    Schulhalbjahr:
+        label: Schulhalbjahr
+        type: text
+        default: الثاني
 -->#}
 
 
@@ -434,12 +444,12 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
          <table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
             <tr>
                 <td style="font-size: 20px; height:30mm; vertical-align: bottom;"> Schulhalbjahr:</td>
-                <td style="width:60mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{ reportingCycle.nameShort }}</td> 
+                <td style="width:60mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{- config.Schulhalbjahr|default('الثاني') -}} </td> 
                 <td class="arabic" style="font-size: 20px; vertical-align: bottom;"> الفصل: </td>
             </tr>
             <tr>
                 <td style="font-size: 20px; vertical-align: bottom;"> Schuljahr:</td>
-                <td style="width:60mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{- reportingCycle.name -}} </td> 
+                <td style="width:60mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{- config.Schuljahr|default('2025-2026') -}} </td> 
                 <td class="arabic" style="font-size: 20px; vertical-align: bottom;">  العام الدراسي: </td>                
             </tr>
          </table>
