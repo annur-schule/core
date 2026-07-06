@@ -88,7 +88,7 @@ config:
     <style>
         @page {
             size: A4 landscape;
-            margin: 10mm;
+            margin: 0mm;
         }
 
         body {
@@ -97,13 +97,19 @@ config:
         }
 
         .table-outer {
-            border: 1px solid #dbe0e6;
+            border: 1px solid #dbe0e6  !important;
             border-collapse: collapse;
         }
 
         .table-outer th, .table-outer td {
-            border: 1px solid #dbe0e6;
+            border: 1px solid #dbe0e6  !important;
             padding: 10px;
+        }
+
+
+        .table-outer table td {
+            border: 1px solid #dbe0e6  !important; /* Custom nested line layout */
+            overflow: hidden !important;
         }
 
         .marks{
@@ -122,25 +128,114 @@ config:
             text-align: right;
         }
 
-        .details {
-            font-size: small;
-        }
 
         .empty-cells {
             line-height : 5px;
         }
 
-        .page-table-cell {
-            box-sizing: border-box;
-            page-break-inside: avoid;
-            page-break-before: auto;
-            page-break-after: auto;
-            min-width: 138mm;
-            width: 138mm;
-            min-height: 180mm;
-            border: 1px solid #05a31f;
-            padding: 15px;
+        .heading-1 {
+            font-size: 20px;
         }
+
+        .heading-2 {
+            font-size: 16px;
+            background-color: #f5f7fb;
+        }
+
+        .mark-importance-high {
+            font-size: 16px;
+        }
+
+        .mark-importance-low {
+            font-size: 12px;
+        }
+
+        .mark-importance-medium {
+            font-size: 14px;
+        }
+
+
+        /* 2. Global Sizing Engine */
+        .page-a4-table,
+        .page-a4-table th,
+        .page-a4-table td {
+            box-sizing: border-box;
+        }
+
+        /* 3. Outer Master Table Configuration */
+        .page-a4-table {
+            table-layout: fixed !important;
+            width: 280mm !important; /* Explicit width constraint: 133 + 14 + 133 = 280mm */
+
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 0 auto;
+            /*border: 0.3mm solid #05a31f; /* This draws the outer bounding box */
+        }
+
+        /* 4. Column Widths via Table Headers */
+        .page-a4-table th.col-1,
+        .page-a4-table td.col-1 { width: 133mm !important;  
+            height: 185mm !important; /* Explicit height constraint for A4 landscape */
+            min-height: 185mm !important; /* Ensures the table does not shrink below A4 height */}
+        .page-a4-table th.col-2,
+        .page-a4-table td.col-2 { width: 14mm !important;   
+            height: 185mm !important; /* Explicit height constraint for A4 landscape */
+            min-height: 185mm !important; /* Ensures the table does not shrink below A4 height */}
+        .page-a4-table th.col-3,
+        .page-a4-table td.col-3 { width: 133mm !important;  
+            height: 185mm !important; /* Explicit height constraint for A4 landscape */
+            min-height: 185mm !important; /* Ensures the table does not shrink below A4 height */}
+
+        /* 5. Master Table Grid Borders & Styles */
+        .page-a4-table th,
+        .page-a4-table td {
+            margin: 0;
+            padding: 10mm;
+            border: 0mm solid #05a31f; /* This draws the internal cell green borders */
+            vertical-align: top;
+            
+            /* Structural Overflow Locks */
+            overflow: hidden;
+            word-wrap: break-word;
+            word-break: break-all;
+            white-space: normal;
+        }
+
+        .page-a4-table th {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        /* 6. NESTED TABLES RESET (Stops style bleeding instantly) */
+        .page-a4-table table {
+            table-layout: auto !important;
+            width: 100% !important;
+            border-collapse: collapse !important;
+            border: none !important; /* Removes green border on nested table root */
+        }
+
+        /* Clean out any green layout properties from nested cells */
+        .page-a4-table table th,
+        .page-a4-table table td {
+            width: auto !important; /* Overrides the 133mm / 14mm parent caps */
+            border: 1px solid #dbe0e6  !important; /* Custom nested line layout */
+            padding: 2mm !important;
+            overflow: hidden !important;
+        }
+
+        /* 6. Optional Nested Table Styles (Completely independent of master table) */
+        .nested-custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .nested-custom-table td {
+            border: 1px solid #dbe0e6  !important; /* Visual confirmation of custom styles */
+            padding: 4px !important;
+        }
+
+
 
     </style>
 
@@ -205,8 +300,10 @@ config:
 
 {% set QuranAlqirat_1 = 0%}
 {% set QuranAlqirat_2 = 0%}
+{% set QuranAlqirat_3 = 0%}
 {% set QuranHifdh_1 = 0%}
 {% set QuranHifdh_2 = 0%}
+{% set QuranHifdh_3 = 0%}
 {% set QuranPrufung = 0%}
 {% set QuranSalook = 0%}
 {% set QuranMalahazat = '' %}
@@ -288,20 +385,24 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 
     {% set printQuranResult = true %}
 
-    {% if criteria.criteriaName == 'Quran Lesen / Nourania (القراءة / النورانية) 1:' %}
+    {% if criteria.criteriaName == 'Quran Lesen / Nourania (القراءة / النورانية) 1' %}
         {% set QuranAlqirat_1 = criteria.value|replace({'%': ''})|trim %}
     {% elseif criteria.criteriaName == 'Quran Lesen / Nourania (القراءة / النورانية) 2' %}
         {% set QuranAlqirat_2 = criteria.value|replace({'%': ''})|trim %}
-
+    {% elseif criteria.criteriaName == 'Quran Lesen / Nourania (القراءة / النورانية) 3' %}
+        {% set QuranAlqirat_3 = criteria.value|replace({'%': ''})|trim %}
 
     {% elseif criteria.criteriaName == 'Quran Auswendiglernen (الحفظ) 1' %}
         {% set QuranHifdh_1 = criteria.value|replace({'%': ''})|trim %}
     {% elseif criteria.criteriaName == 'Quran Auswendiglernen (الحفظ) 2' %}
         {% set QuranHifdh_2 = criteria.value|replace({'%': ''})|trim %}
+    {% elseif criteria.criteriaName == 'Quran Auswendiglernen (الحفظ) 3' %}
+        {% set QuranHifdh_3 = criteria.value|replace({'%': ''})|trim %}
 
-    {% elseif criteria.criteriaName == 'Quran Prüfung	(الامتحان)' %}
+
+    {% elseif criteria.criteriaName == 'Quran Prüfung (الامتحان)' %}
         {% set QuranPrufung = criteria.value|replace({'%': ''})|trim %}
-    {% elseif criteria.criteriaName == 'Quran Verhalten	(السلوك)' %}
+    {% elseif criteria.criteriaName == 'Quran Verhalten (السلوك)' %}
         {% set QuranSalook = criteria.value|replace({'%': ''})|trim %}
     {% elseif criteria.criteriaName == 'Quran Lehreranmerkungen (ملاحظات المعلم)' %}
         {% set QuranMalahazat = criteria.comment|trim %}
@@ -392,13 +493,15 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 {#<!-- ---------------------------------------------  -->#}
 
 {%set QuranAlqirat = m.weightedRoundedAvg([
-    {value: QuranAlqirat_1, weight: 0.5},
-    {value: QuranAlqirat_2, weight: 0.5}
+    {value: QuranAlqirat_1, weight: 1},
+    {value: QuranAlqirat_2, weight: 1},
+    {value: QuranAlqirat_3, weight: 1}
 ]) %}
 
 {%set QuranHifdh = m.weightedRoundedAvg([
-    {value: QuranHifdh_1, weight: 0.5},
-    {value: QuranHifdh_2, weight: 0.5}
+    {value: QuranHifdh_1, weight: 1},
+    {value: QuranHifdh_2, weight: 1},
+    {value: QuranHifdh_3, weight: 1}
 ]) %}
 
 {%set QuranKomb = m.weightedRoundedAvg([
@@ -424,61 +527,78 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 {% endif %}
 
 
+<table class="page-a4-table">
+  <colgroup>
+    <col>
+    <col>
+    <col>
+  </colgroup>
+  <thead>
+  </thead>
+  <tbody>
+    <tr>
+        <td class="col-1"> 
+            <table style="border-collapse: collapse;">
+                <tr>
+                    <td style="width: 20mm;height: 95mm; vertical-align: bottom; font-size: 16px; border: 0px"> Name:</td>
+                    <td  style="text-align: center; font-size: 22px; font-weight: bold; vertical-align: bottom; border: 0px">{{ student.preferredName ~ " " ~ student.surname }}</td> 
+                    <td class="arabic" style="width: 20mm; vertical-align: bottom; font-size: 16px; border: 0px">  الاسم: </td>
+                </tr>
+                <tr>
+                    <td style=" height: 25mm; font-size: 16px; vertical-align: middle; border: 0px"> Klasse:</td>
+                    <td style="text-align: center; font-size: 16px; min-height: 15mm; vertical-align: middle; border: 0px"> {{- arabic_course_name -}} <br> {{- quran_course_name -}} </td> 
+                    <td class="arabic" style="font-size: 16px; vertical-align: middle; border: 0px">  الصف: </td>
+                </tr>
+            </table>
+            <br>
+            <table style="border: 0px !important; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 20mm; font-size: 16px; height:23mm; vertical-align: bottom; border: 0px"> Schulhalbjahr:</td>
+                    <td style="text-align: center; font-size: 20px; font-weight: bold; vertical-align: bottom; border: 0px">{{- config.Schulhalbjahr|default('الثاني') -}} </td> 
+                    <td class="arabic" style=" width: 25mm; font-size: 16px; vertical-align: bottom; border: 0px"> الفصل: </td>
+                </tr>
+                <tr>
+                    <td style="font-size: 16px; vertical-align: bottom; height: 13mm; border: 0px"> Schuljahr:</td>
+                    <td style="text-align: center; font-size: 20px; font-weight: bold; vertical-align: bottom; border: 0px">{{- config.Schuljahr|default('2025-2026') -}} </td> 
+                    <td class="arabic" style="font-size: 16px; vertical-align: bottom; border: 0px">  العام الدراسي: </td>                
+                </tr>
+            </table>
+        </td>
 
-<table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 0pt solid #dbe0e6; table-layout: fixed;">
-<tr>
-    <td class="page-table-cell"> 
-        <table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
-            <tr>
-                <td style="height: 100mm; vertical-align: bottom; font-size: 20px;"> Name:</td>
-                <td  style="width:90mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{ student.preferredName ~ " " ~ student.surname }}</td> 
-                <td class="arabic" style="vertical-align: bottom; font-size: 20px;">  الاسم: </td>
-            </tr>
-            <tr>
-                <td style="height: 20mm; font-size: 20px; vertical-align: bottom;"> Klasse:</td>
-                <td style="text-align: center; font-size: 20px; min-height: 15mm; vertical-align: bottom;">{{- arabic_course_name -}} <br> {{- quran_course_name -}} </td> 
-                <td class="arabic" style="font-size: 20px; vertical-align: bottom;">  الصف: </td>
-            </tr>
-         </table>
-         <br>
-         <table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
-            <tr>
-                <td style="font-size: 20px; height:30mm; vertical-align: bottom;"> Schulhalbjahr:</td>
-                <td style="width:60mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{- config.Schulhalbjahr|default('الثاني') -}} </td> 
-                <td class="arabic" style="font-size: 20px; vertical-align: bottom;"> الفصل: </td>
-            </tr>
-            <tr>
-                <td style="font-size: 20px; vertical-align: bottom;"> Schuljahr:</td>
-                <td style="width:60mm; text-align: center; font-size: 25px; font-weight: bold; vertical-align: bottom;">{{- config.Schuljahr|default('2025-2026') -}} </td> 
-                <td class="arabic" style="font-size: 20px; vertical-align: bottom;">  العام الدراسي: </td>                
-            </tr>
-         </table>
-    </td>
-    <td class="page-table-cell"> 
-        <table cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
+        <td class="col-2">
             
-         </table>
-    </td>
-        
-         
+        </td>
+
+
+        <td class="col-3"> 
+            
+        </td>  
     
-</tr>
+    </tr>
+  </tbody>
 </table>
 
 
 
-<table cellspacing="0" cellpadding="4" nobr="true",  style="margin: 0 auto; border: 0pt solid #fff;">
-
+<table class="page-a4-table">
+<colgroup>
+    <col>
+    <col>
+    <col>
+  </colgroup>
+  <thead>
+  </thead>
+  <tbody>
     
 <tr>
-    <td class="page-table-cell">
+    <td class="col-1" style="vertical-align: middle;">
         {%if printArabicResult %}
         <table class="table-outer" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
                 <tr>
-                    <td  colspan="5" style="border-right: 1px lightgray; background-color: #f5f7fb; font-size: large;"> 
+                    <td  class="heading-2" colspan="5" style="border-right: 1px lightgray;"> 
                         Bewertung Arabischer Sprache
                     </td>
-                    <td  colspan="4" class="arabic" style="border-left: 0px; background-color: #f5f7fb; font-size: large;"> 
+                    <td  colspan="4" class=" heading-2 arabic" style="border-left: 0px;"> 
                         تقييم اللغة العربية
                     </td>
                 </tr>
@@ -497,10 +617,10 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
                     <td rowspan="5" style="border:0px"></td>
                     <td rowspan="4" style="width:8px; border-top:0px; padding: 0px 0px; border-top: 0px; border-bottom: 0px;"> </td>
                 
-                    <td >Lesen</td>
-                    <td class="marks details">{{- m.printPercent(ArabischAlqiratKomb) -}}</td>
-                    <td class="arabic">القراءة</td>
-                
+                    <td class="mark-importance-medium">Lesen</td>
+                    <td class="mark-importance-medium marks">{{- m.printPercent(ArabischAlqiratKomb) -}}</td>
+                    <td class="arabic mark-importance-medium">القراءة</td>
+                S
                     <td rowspan="4" style="border-top: 0px; border-bottom: 0px;  width:8px; border-top:0px; padding: 0px 0px;"> </td>
                     <td style="border:0px;" rowspan="5" ></td>
                     <td style="border-top:0px; width:8px; border-top:0px; padding: 0px 0px;" rowspan="11"></td>
@@ -509,25 +629,25 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 
             {#<!--Arabisch Grammatik-->#}
                 <tr>
-                    <td>Grammatik</td>
-                    <td class="marks details">{{- m.printPercent(ArabischAlqawaidKomb) -}}</td>
-                    <td class="arabic">القواعد</td>
+                    <td class="mark-importance-medium">Grammatik</td>
+                    <td class="mark-importance-medium marks">{{- m.printPercent(ArabischAlqawaidKomb) -}}</td>
+                    <td class="arabic mark-importance-medium">القواعد</td>
                 </tr>
 
 
             {#<!--Arabisch Ausdruck-->#}
                 <tr>
-                    <td> Ausdruck</td>
-                    <td class="marks details">{{- m.printPercent(ArabischAlTabirKomb) -}}</td>
-                    <td class="arabic">التعبير</td>
+                    <td class="mark-importance-medium">Ausdruck</td>
+                    <td class="mark-importance-medium marks">{{- m.printPercent(ArabischAlTabirKomb) -}}</td>
+                    <td class="arabic mark-importance-medium">التعبير</td>
                 </tr>
 
                 
             {#<!--Arabisch Handschrift-->#}
                 <tr>
-                    <td>Handschrift und<br>Rechtschreibung</td>
-                    <td class="marks details">{{- m.printPercent(ArabischAlkhatKomb) -}}</td>
-                    <td class="arabic">الخط والإملاء</td>
+                    <td class="mark-importance-medium">Handschrift und<br>Rechtschreibung</td>
+                    <td class="mark-importance-medium marks">{{- m.printPercent(ArabischAlkhatKomb) -}}</td>
+                    <td class="arabic mark-importance-medium">الخط والإملاء</td>
                 </tr>
 
                 
@@ -540,69 +660,69 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 
             <tr>
                 <td class="numbers" style="border-top: 0px;">1.</td>
-                <td style="border-top: 0px;" colspan="2">Arabisch Gesamt</td> 
-                <td style="border-top: 0px;"class="marks">{{- m.printPercent(lughatArabiaKomb) -}}</td> 
-                <td style="border-top: 0px;"colspan="2" class="arabic"> العربية – التقييم العام </td>
-                <td class="numbers" style="border-top: 0px;">.١</td>
+                <td class= "mark-importance-high" style="border-top: 0px;" colspan="2">Arabisch Gesamt</td> 
+                <td class= "mark-importance-high marks" style="border-top: 0px;">{{- m.printPercent(lughatArabiaKomb) -}}</td> 
+                <td class= "mark-importance-high arabic" style="border-top: 0px;"colspan="2"> العربية – التقييم العام </td>
+                <td class="numbers marks-importance-high" style="border-top: 0px;">.١</td>
             </tr>
 
             <tr>
-                <td colspan="4" style="border-right: 1px lightgray;  background-color: #f5f7fb;"> Allgemeine Entwicklung</td>
-                <td colspan="3" class="arabic" style="border-left: 0px; background-color: #f5f7fb;"> التطوّر العام </td>
+                <td class="heading-2" colspan="4" style="border-right: 1px lightgray;"> Allgemeine Entwicklung</td>
+                <td class="heading-2 arabic" colspan="3" style="border-left: 0px;"> التطوّر العام </td>
             </tr>
 
             <tr>
-                <td style="font-size: small;" class="numbers">2.</td>
-                <td style="font-size: small;" colspan="2">Islamische Erziehung</td> 
-                <td style="font-size: small;" class="marks">{{- m.printPercent(tarbiatIslamiaKomb) -}}</td> 
-                <td style="font-size: small;" colspan="2" class="arabic">التربية الاسلامية</td>
-                <td style="font-size: small;" class="numbers">.٢</td>
+                <td class="numbers mark-importance-low numbers">2.</td>
+                <td class="mark-importance-low" colspan="2">Islamische Erziehung</td> 
+                <td class="marks mark-importance-low">{{- m.printPercent(tarbiatIslamiaKomb) -}}</td> 
+                <td colspan="2" class="arabic mark-importance-low">التربية الاسلامية</td>
+                <td class="numbers mark-importance-low">.٢</td>
             </tr>
 
             <tr>
-                <td style="font-size: small;" class="numbers">3.</td>
-                <td style="font-size: small;" colspan="2">Teilnahme</td> 
-                <td style="font-size: small;" class="marks">{{- m.printPercent(ArabischAlHazoor) -}}</td> 
-                <td style="font-size: small;" colspan="2" class="arabic">الحضور </td>
-                <td style="font-size: small;" class="numbers">.٣</td>
+                <td class="numbers mark-importance-low">3.</td>
+                <td class="mark-importance-low" colspan="2">Teilnahme</td> 
+                <td class="mark-importance-low marks">{{- m.printPercent(ArabischAlHazoor) -}}</td> 
+                <td class="mark-importance-low arabic" colspan="2">الحضور </td>
+                <td class="numbers mark-importance-low">.٣</td>
             </tr>
 
             <tr>
-                <td style="font-size: small;" class="numbers">4.</td>
-                <td style="font-size: small;" colspan="2">Hausaufgaben</td> 
-                <td style="font-size: small;" class="marks" >{{- m.printPercent(WajibatManzaliya)}}</td> 
-                <td style="font-size: small;" colspan="2" class="arabic" >الواجبات منزلية</td>
-                <td style="font-size: small;" class="numbers" >.٤</td>
+                <td class="mark-importance-low numbers">4.</td>
+                <td class="mark-importance-low" colspan="2">Hausaufgaben</td> 
+                <td class="mark-importance-low marks" >{{- m.printPercent(WajibatManzaliya)}}</td> 
+                <td class="mark-importance-low arabic" colspan="2" >الواجبات منزلية</td>
+                <td class="mark-importance-low numbers" >.٤</td>
             </tr>
 
             <tr>
-                <td class="numbers" style="font-size: small;">5.</td>
-                <td colspan="2" style="font-size: small;">Verhalten</td> 
-                <td class="marks" style="font-size: small;">{{- m.printPercent(ArabischSalook) -}}</td> 
-                <td colspan="2" class="arabic" style="font-size: small;">السلوك</td>
-                <td class="numbers" style="font-size: small;">.٥</td>
+                <td class="numbers mark-importance-low" style="font-size: 12px;">5.</td>
+                <td class="mark-importance-low" colspan="2">Verhalten</td> 
+                <td class="marks mark-importance-low">{{- m.printPercent(ArabischSalook) -}}</td> 
+                <td colspan="2" class="arabic mark-importance-low">السلوك</td>
+                <td class="numbers mark-importance-low">.٥</td>
             </tr>
 
             <tr>
-                <td style="font-size: large; background-color: #f5f7fb;" colspan="4">Endnote</td> 
-                <td style ="background-color: #f5f7fb;" class="marks">{{- m.printPercent(Endergebnis) -}}</td> 
-                <td style="font-size: large; background-color: #f5f7fb;" colspan="4" class="arabic">المعدل النهائي</td>
+                <td class="mark-importance-high" style=" background-color: #f5f7fb;" colspan="4">Endnote</td> 
+                <td style ="background-color: #f5f7fb;" class="mark-importance-high marks">{{- m.printPercent(Endergebnis) -}}</td> 
+                <td style="font-size: 16px; background-color: #f5f7fb;" colspan="4" class="mark-importance-high arabic">المعدل النهائي</td>
             </tr>
             
         </table>
 
 
-        <table class="w-full border" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; margin-top: 10px;">
+        <table cellspacing="0" cellpadding="4" nobr="true", style="width:100%; margin: 0 auto; margin-top: 10px; border: 1pt solid #dbe0e6;">
             <tr>
-                <td  colspan="1" class="bg-primary" style="text-align: left; font-size: large;"> 
+                <td  colspan="1" class="heading-2" style="text-align: left; border-right: 0px;"> 
                     Lehreranmerkungen
                 </td>
-                <td  colspan="1" class="bg-primary arabic" style="text-align: right; font-size: large;"> 
+                <td  colspan="1" class="heading-2 arabic" style="text-align: right; border-left: 0px;"> 
                     ملاحظات المعلم
                 </td>
             </tr>
             <tr>
-                <td  style="height: 40px; padding: 0px 0px; border-bottom:0px" colspan="2">{{- ArabischMalahazat -}}</td>
+                <td  class= "mark-importance-medium" style="height: 40px; border-bottom:0px;" colspan="2">{{- ArabischMalahazat -}}</td>
             </tr>
 
         </table>    
@@ -610,16 +730,17 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
         {% endif %}
     </td>
 
+    <td class="col-2">
+    </td>
 
-
-    <td class="page-table-cell">
+    <td class="col-3" style="vertical-align: middle;">
         {%if printQuranResult %}
         <table class="table-outer" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; border: 1pt solid #dbe0e6;">
             <tr>
-                <td  colspan="3" style="border-right: 1px lightgray; background-color: #f5f7fb; font-size: large;"> 
+                <td  class="heading-2" colspan="3" style="border-right: 1px lightgray;"> 
                     Qur’anisches Lernen
                 </td>
-                <td  colspan="2" class="arabic" style="border-left: 0px; background-color: #f5f7fb; font-size: large;"> 
+                <td  colspan="2" class="arabic heading-2" style="border-left: 0px;"> 
                     تعلّم القرآن الكريم
                 </td>
             </tr>
@@ -634,9 +755,9 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
                 
                 <td rowspan="3" style="width:8px; padding: 0px 0px; border-top: 0px; border-bottom: 0px;"></td>
             
-                <td >Lesen / Nourania</td>
-                <td class="marks details">{{- m.printPercent(QuranAlqirat) -}}</td>
-                <td class="arabic"> القراءة / النورانية</td>
+                <td class="mark-importance-medium">Lesen / Nourania</td>
+                <td class="marks mark-importance-medium">{{- m.printPercent(QuranAlqirat) -}}</td>
+                <td class="mark-importance-medium arabic"> القراءة / النورانية</td>
             
                 <td rowspan="3" style="border-top: 0px; border-bottom: 0px;  width:8px; border-top:0px; padding: 0px 0px;"></td>
                 
@@ -644,17 +765,17 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 
         {#<!--Hifdh-->#}
             <tr>
-                <td>Auswendiglernen</td>
-                <td class="marks details">{{- m.printPercent(QuranHifdh) -}}</td>
-                <td class="arabic">الحفظ</td>
+                <td class="mark-importance-medium">Auswendiglernen</td>
+                <td class="marks mark-importance-medium">{{- m.printPercent(QuranHifdh) -}}</td>
+                <td class="arabic mark-importance-medium">الحفظ</td>
             </tr>
 
 
         {#<!--Prüfung-->#}
             <tr>
                 <td>Prüfung</td>
-                <td class="marks details">{{- m.printPercent(QuranPrufung) -}}</td>
-                <td class="arabic">الامتحان </td>
+                <td class="marks mark-importance-medium">{{- m.printPercent(QuranPrufung) -}}</td>
+                <td class="arabic mark-importance-medium">الامتحان </td>
             </tr>
 
             
@@ -666,42 +787,44 @@ My course name: {{ course.courseName }}, class name: {{- course.className -}}
 
 
             <tr>
-                <td style="font-size: large; border-top: 0px; background-color: #f5f7fb;" colspan="2">Endnote</td> 
-                <td style="border-top: 0px; background-color: #f5f7fb;"class="marks">{{- m.printPercent(QuranKomb) -}}</td> 
+                <td class="mark-importance-high" style="border-top: 0px; background-color: #f5f7fb;" colspan="2">Endnote</td> 
+                <td style="border-top: 0px; background-color: #f5f7fb;"class="marks mark-importance-medium">{{- m.printPercent(QuranKomb) -}}</td> 
                 <td style="border-top: 0px; background-color: #f5f7fb;" colspan="2" class="arabic">المعدل النهائي</td>
             </tr>
 
 
             <tr>
-                <td colspan="2" style="font-size: small;">Verhalten</td> 
-                <td class="marks" style="font-size: small;">{{- m.printPercent(QuranSalook) -}}</td> 
-                <td colspan="2" class="arabic" style="font-size: small;">السلوك</td>
+                <td class="mark-importance-low" colspan="2">Verhalten</td> 
+                <td class="marks mark-importance-low">{{- m.printPercent(QuranSalook) -}}</td> 
+                <td colspan="2" class="arabic mark-importance-low">السلوك</td>
             </tr>
 
             <tr>
-                <td style="font-size: small;" colspan="2">Teilnahme</td> 
-                <td style="font-size: small;" class="marks">{{- m.printPercent(ArabischAlHazoor) -}}</td> 
-                <td style="font-size: small;" colspan="2" class="arabic">الحضور</td>
+                <td class="mark-importance-low" colspan="2">Teilnahme</td> 
+                <td class="mark-importance-low marks">{{- m.printPercent(ArabischAlHazoor) -}}</td> 
+                <td class="mark-importance-low arabic" colspan="2" class="arabic">الحضور</td>
             </tr>
 
     
         </table>
 
 
-        <table class="w-full border" cellspacing="0" cellpadding="4" nobr="true", style="margin: 0 auto; margin-top: 10px;">
+        <table cellspacing="0" cellpadding="4" nobr="true", style="width: 100%; margin: 0 auto; margin-top: 10px; border: 1pt solid #dbe0e6;">
             <tr>
-                <td  colspan="1" class="bg-primary" style="text-align: left; font-size: large;"> 
+                <td  colspan="1" class="heading-2" style="text-align: left; border-right: 0px;"> 
                     Lehreranmerkungen
                 </td>
-                <td  colspan="1" class="bg-primary arabic" style="text-align: right; font-size: large;"> 
+                <td  colspan="1" class="heading-2 arabic" style="text-align: right; border-left: 0px;"> 
                     ملاحظات المعلم
                 </td>
             </tr>
             <tr>
-                <td  style="height: 40px; padding: 0px 0px; border-bottom:0px" colspan="2">{{- QuranMalahazat -}}</td>
+                <td  class= "mark-importance-medium" style="height: 40px; border-bottom:0px;" colspan="2">{{- QuranMalahazat -}}</td>
             </tr>
 
         </table>
+
+
         {% endif %}
         
     </td>
