@@ -70,11 +70,7 @@ For info about editing, see: https://twig.symfony.com/doc/2.x/
     
         {% if structure.isCurrentWeek and structure.getStartTime <= now and structure.getEndTime >= now and format != 'print' %}
 
-        {% if structure.getStartTime < structure.getActiveDay.schoolStart %}
-            {% set dayOffset = structure.timeToPixels(structure.getStartTime) - structure.timeToPixels(structure.getActiveDay.schoolStart) %}
-        {% endif %}
-
-        <div x-show="showCurrentTime" class="print:hidden absolute ml-1 w-full left-0" style="top: {{ structure.timeToPixels(now) + dayOffset }}px">
+        <div x-show="showCurrentTime" class="print:hidden absolute ml-1 w-full left-0" style="top: {{ structure.timeToPixels(now) }}px">
             <div class="border-b-2 border-blue-500 w-full"></div>
             <div class="absolute origin-center text-center left-0 -mt-3 rounded-full border border-blue-500 bg-blue-500 w-10 shadow">
                 <span class="inline-block text-xxs text-white uppercase leading-loose">{{ structure.getToday.format('G:i') }}</span>

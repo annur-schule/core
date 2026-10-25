@@ -5,6 +5,9 @@ services:
     build:
       context: .
     container_name: annur_php_gibbon
+    environment:
+      TZ: Europe/Berlin
+    command: sh -c "echo 'date.timezone=Europe/Berlin' > /usr/local/etc/php/conf.d/99-timezone.ini && exec apache2-foreground"
     volumes:
       - ..:/var/www/html
     ports:

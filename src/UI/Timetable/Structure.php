@@ -344,38 +344,42 @@ class Structure
 
     protected function calculateDateRange()
     {
-        $this->timestampStart = strtotime($this->currentDate->format('Y-m-d'));
+        $weekStart = $this->currentDate->setTime(0, 0);
         $firstSchoolDay = $this->weekdays[0]['nameShort'] ?? '';
 
         if ($this->currentDate->format('D') == 'Sun' && $firstSchoolDay != 'Sun' ) {
-            $this->timestampStart += 86400;
+            $weekStart = $weekStart->modify('+1 day');
         } else {
             for ($i = 0; $i < 7; $i++) {
-                if (date('D', $this->timestampStart) == $firstSchoolDay) {
+                if ($weekStart->format('D') == $firstSchoolDay) {
                     break;
                 }
-                $this->timestampStart -= 86400;
+                $weekStart = $weekStart->modify('-1 day');
             }
         }
 
+        $this->timestampStart = $weekStart->getTimestamp();
         $index = 0;
-        for ($i = 0; $i < 7; $i++) {
-            $timestamp = $this->timestampStart + (86400 * $i);
+        $lastSchoolDay = $weekStart;
+        for ($i = 0; $i < 7 && $index < count($this->weekdays); $i++) {
+            $day = $weekStart->modify("+{$i} days");
             $weekday = $this->weekdays[$index] ?? [];
 
             if (empty($weekday)) continue;
 
-            if (date('D', $timestamp) == $weekday['nameShort']) {
-                $this->weekdays[$index]['date'] = date('Y-m-d', $timestamp);
-                $this->timestampEnd = $timestamp + 86399;
+            if ($day->format('D') == $weekday['nameShort']) {
+                $this->weekdays[$index]['date'] = $day->format('Y-m-d');
+                $lastSchoolDay = $day;
                 $index++;
             }
         }
 
+        $this->timestampEnd = $lastSchoolDay->setTime(23, 59, 59)->getTimestamp();
+
         return new \DatePeriod(
-            (new \DateTime(date('Y-m-d H:i:s', $this->timestampStart))),
+            (new \DateTime($weekStart->format('Y-m-d H:i:s'))),
             new \DateInterval('P1D'),
-            (new \DateTime(date('Y-m-d H:i:s', $this->timestampEnd)))
+            (new \DateTime($lastSchoolDay->format('Y-m-d').' 23:59:59'))
         );
     }
 

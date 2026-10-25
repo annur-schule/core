@@ -8,7 +8,7 @@ if not exist Dockerfile (
 )
 
 rem Docker compose does the build
-docker-compose up -d 
+docker-compose -f docker-compose-testing.yml up -d 
 
 rem create a delay
 ping 127.0.0.1 -n 6 > nul
